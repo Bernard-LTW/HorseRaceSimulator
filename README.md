@@ -12,7 +12,7 @@ java -cp part1 RaceTest
 
 
 ## Part 1 Testing Output Example
-```bash
+```
 Test 1: Basic initialization
 Symbol: ♞ (Expected: ♞)
 Name: Thunder (Expected: Thunder)
