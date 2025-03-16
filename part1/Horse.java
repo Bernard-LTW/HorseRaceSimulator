@@ -11,8 +11,8 @@ public class Horse
     //Fields of class Horse
     private final String horseName;
     private char horseSymbol;
-    private int distanceTravelled;
-    private double horseConfidence;
+    private int distanceTravelled=0;
+    private double horseConfidence=0.0;
     private boolean fallen=false;
 
     
@@ -67,11 +67,7 @@ public class Horse
     }
 
     public void moveForward()
-    {
-        if(!this.fallen){
-            this.distanceTravelled++;
-        }
-    }
+    { this.distanceTravelled++;}
 
     public void setConfidence(double newConfidence)
     {
