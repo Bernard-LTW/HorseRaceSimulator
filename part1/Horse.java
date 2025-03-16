@@ -1,7 +1,7 @@
 
 /**
  * This is a Horse which aims to represent a horse within a horse race. 
- * Each object stores the name, unicode symbol, distance travelled, confidence and boolean of if a horse has fallen.
+ * Each object stores the name, Unicode symbol, distance travelled, confidence and boolean of if a horse has fallen.
  * 
  * @author Tsz Wo Bernard Lee
  * @version 2025-03-16
@@ -9,7 +9,7 @@
 public class Horse
 {
     //Fields of class Horse
-    private String horseName;
+    private final String horseName;
     private char horseSymbol;
     private int distanceTravelled;
     private double horseConfidence;
