@@ -25,7 +25,7 @@ public class Horse
     {
        this.horseName=horseName;
        this.horseSymbol=horseSymbol;
-       this.horseConfidence=horseConfidence;
+       this.setConfidence(horseConfidence);
     }
     
     
@@ -68,7 +68,9 @@ public class Horse
 
     public void moveForward()
     {
-        this.distanceTravelled++;
+        if(!this.fallen){
+            this.distanceTravelled++;
+        }
     }
 
     public void setConfidence(double newConfidence)
