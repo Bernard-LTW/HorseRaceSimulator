@@ -31,11 +31,6 @@ public class Horse
     
     
     //Other methods of class Horse
-    public void fall()
-    {
-        this.fallen=true;
-    }
-    
     public double getConfidence()
     {
         return this.horseConfidence;
@@ -55,16 +50,22 @@ public class Horse
     {
         return this.horseSymbol;
     }
-    
-    public void goBackToStart()
-    {
-        this.distanceTravelled=0;
-    }
-    
+
     public boolean hasFallen()
     {
         return this.fallen;
     }
+
+    public void fall()
+    {
+        this.fallen=true;
+    }
+
+    public void goBackToStart()
+    {
+        this.distanceTravelled=0;
+    }
+
 
     public void moveForward()
     { this.distanceTravelled++;}
