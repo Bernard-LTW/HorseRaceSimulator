@@ -3,9 +3,9 @@ package ui;
 import javax.swing.*;
 import java.awt.*;
 
-public class mainPanel extends JPanel {
+public class MainPanel extends JPanel {
 
-    public mainPanel() {
+    public MainPanel() {
         // Set layout for the panel
         setLayout(new BorderLayout());
 

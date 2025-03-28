@@ -1,5 +1,5 @@
 package core;
 
-public class betManager {
+public class BetManager {
     
 }

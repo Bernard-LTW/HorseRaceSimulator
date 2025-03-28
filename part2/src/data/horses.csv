@@ -1,0 +1,9 @@
+name,symbol,confidence
+"Thunder",'🐴',0.6
+"Lightning",'⚡',0.8
+"Tornado",'🌪️',0.7
+"Blizzard",'❄️',0.9
+"Storm",'🌩️',0.85
+"Whirlwind",'🌪️',0.75
+"Tempest",'🌩️',0.8
+"Testing Boi",'🌪️',0.3
