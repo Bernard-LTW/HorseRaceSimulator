@@ -1,5 +1,8 @@
 import java.util.concurrent.TimeUnit;
 import java.lang.Math;
+import java.util.List;
+import java.util.Collections;
+import java.util.ArrayList;
 
 /**
  * A three-horse race, each horse running in its own lane
@@ -62,7 +65,7 @@ public class Race
             }
         }
         
-        boolean finished = false;
+        boolean raceComplete = false;
         
         // Reset all horses
         for (Horse horse : lanes)
@@ -70,41 +73,26 @@ public class Race
             horse.goBackToStart();
         }
         
-        while (!finished)
+        while (!raceComplete)
         {
-            // Move each horse
+            // Move each horse that hasn't finished or fallen
             for (Horse horse : lanes)
             {
-                moveHorse(horse);
+                if (!raceWonBy(horse) && !horse.hasFallen())
+                {
+                    moveHorse(horse);
+                }
             }
             
             printRace();
             
-            // Check if all horses have fallen
-            boolean allFallen = true;
+            // Check if race is complete (all horses either finished or fallen)
+            raceComplete = true;
             for (Horse horse : lanes)
             {
-                if (!horse.hasFallen())
+                if (!raceWonBy(horse) && !horse.hasFallen())
                 {
-                    allFallen = false;
-                    break;
-                }
-            }
-            
-            if (allFallen)
-            {
-                System.out.println("Race ended: All horses have fallen!");
-                finished = true;
-                return;
-            }
-            
-            // Check for winners
-            for (Horse horse : lanes)
-            {
-                if (raceWonBy(horse))
-                {
-                    System.out.println("Horse " + horse.getSymbol() + " has won the race!");
-                    finished = true;
+                    raceComplete = false;
                     break;
                 }
             }
@@ -112,6 +100,53 @@ public class Race
             try { 
                 TimeUnit.MILLISECONDS.sleep(100);
             } catch(Exception e) {}
+        }
+        
+        // Print final results
+        System.out.println("\n=== RACE RESULTS ===");
+        
+        // Sort horses by distance traveled
+        List<Horse> sortedHorses = new ArrayList<>();
+        for (Horse horse : lanes)
+        {
+            sortedHorses.add(horse);
+        }
+        Collections.sort(sortedHorses, (h1, h2) -> Double.compare(h2.getDistanceTravelled(), h1.getDistanceTravelled()));
+        
+        // Print leaderboard
+        for (int i = 0; i < sortedHorses.size(); i++)
+        {
+            Horse horse = sortedHorses.get(i);
+            System.out.print((i + 1) + ". Horse " + horse.getSymbol());
+            if (raceWonBy(horse))
+            {
+                System.out.println(" - FINISHED (" + horse.getDistanceTravelled() + " units)");
+            }
+            else if (horse.hasFallen())
+            {
+                System.out.println(" - FELL at " + horse.getDistanceTravelled() + " units");
+            }
+            else
+            {
+                System.out.println(" - Travelled " + horse.getDistanceTravelled() + " units");
+            }
+        }
+        
+        // Announce winner if any horse finished
+        boolean anyoneFinished = false;
+        for (Horse horse : sortedHorses)
+        {
+            if (raceWonBy(horse))
+            {
+                anyoneFinished = true;
+                System.out.println("\nWINNER: Horse " + horse.getSymbol() + "!");
+                break;
+            }
+        }
+        
+        if (!anyoneFinished)
+        {
+            System.out.println("\nNo winners - all horses fell!");
         }
     }
     
@@ -198,7 +233,7 @@ public class Race
         //else print the horse's symbol
         if(theHorse.hasFallen())
         {
-            System.out.print('\u2322');
+            System.out.print('F');
         }
         else
         {
