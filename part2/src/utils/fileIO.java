@@ -8,6 +8,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
+import models.Transaction;
 
 /**
  * Utility class for file input/output operations
@@ -15,7 +16,9 @@ import java.util.List;
 public class FileIO {  // Class names should start with capital letters
     // File paths
     private static final String HORSE_CSV_FILE = "part2/src/data/horses.csv";
-    
+    private static final String TRANSACTION_CSV_FILE = "part2/src/data/transaction.csv";
+
+
     /**
      * Reads horse data from CSV file and returns array of Horse objects
      * @return Array of Horse objects
@@ -132,5 +135,48 @@ public class FileIO {  // Class names should start with capital letters
         values.add(currentValue.toString().trim());
         
         return values.toArray(new String[0]);
+    }
+
+    public static List<Transaction> loadTransactions() {
+        List<Transaction> transactions = new ArrayList<>();
+        
+        try (BufferedReader reader = new BufferedReader(new FileReader(TRANSACTION_CSV_FILE))) {
+            String line;
+            // Skip header line
+            reader.readLine();
+            
+            while ((line = reader.readLine()) != null) {
+                String[] data = line.split(",");
+                if (data.length == 4) {
+                    transactions.add(new Transaction(
+                        data[0],          // date
+                        data[1],          // time
+                        data[2],          // type
+                        Double.parseDouble(data[3]) // amount
+                    ));
+                }
+            }
+        } catch (IOException e) {
+            return null;
+        }
+        
+        return transactions;
+    }
+
+    public static boolean saveTransactions(List<Transaction> transactions) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(TRANSACTION_CSV_FILE))) {
+            // Write header
+            writer.write("Date,Time,Type,Amount");
+            writer.newLine();
+            
+            // Write transactions
+            for (Transaction transaction : transactions) {
+                writer.write(transaction.toCsvString());
+                writer.newLine();
+            }
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
     }
 }
