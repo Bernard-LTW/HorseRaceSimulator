@@ -12,6 +12,7 @@ public class Race
 {
     private int raceLength;
     private Horse[] lanes;
+    final static double fallProbability = 0.1;
 
     /**
      * Constructor for objects of class Race
@@ -79,6 +80,24 @@ public class Race
             
             printRace();
             
+            // Check if all horses have fallen
+            boolean allFallen = true;
+            for (Horse horse : lanes)
+            {
+                if (!horse.hasFallen())
+                {
+                    allFallen = false;
+                    break;
+                }
+            }
+            
+            if (allFallen)
+            {
+                System.out.println("Race ended: All horses have fallen!");
+                finished = true;
+                return;
+            }
+            
             // Check for winners
             for (Horse horse : lanes)
             {
@@ -118,7 +137,7 @@ public class Race
             //the probability that the horse will fall is very small (max is 0.1)
             //but will also will depends exponentially on confidence 
             //so if you double the confidence, the probability that it will fall is *2
-            if (Math.random() < (0.1*theHorse.getConfidence()*theHorse.getConfidence()))
+            if (Math.random() < (fallProbability*theHorse.getConfidence()*theHorse.getConfidence()))
             {
                 theHorse.fall();
             }
