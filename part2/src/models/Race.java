@@ -17,7 +17,8 @@ public class Race
 {
     private int raceLength;
     private Horse[] lanes;
-    final static double fallProbability = 0.1;
+    private List<Horse> finishOrder;  // New field to track finish order
+    final static double fallProbability = 0.01;
 
     /**
      * Constructor for objects of class Race
@@ -31,6 +32,7 @@ public class Race
         // initialise instance variables
         raceLength = distance;
         lanes = new Horse[numberOfLanes];
+        finishOrder = new ArrayList<>();  // Initialize finish order list
     }
     
     /**
@@ -68,6 +70,7 @@ public class Race
         }
         
         boolean raceComplete = false;
+        finishOrder.clear();  // Clear any previous results
         
         // Reset all horses
         for (Horse horse : lanes)
@@ -83,6 +86,10 @@ public class Race
                 if (!raceWonBy(horse) && !horse.hasFallen())
                 {
                     moveHorse(horse);
+                    // Check if horse just finished
+                    if (raceWonBy(horse) && !finishOrder.contains(horse)) {
+                        finishOrder.add(horse);
+                    }
                 }
             }
             
@@ -107,46 +114,38 @@ public class Race
         // Print final results
         System.out.println("\n=== RACE RESULTS ===");
         
-        // Sort horses by distance traveled
-        List<Horse> sortedHorses = new ArrayList<>();
+        // First print horses that finished in their finish order
+        for (int i = 0; i < finishOrder.size(); i++)
+        {
+            Horse horse = finishOrder.get(i);
+            System.out.println((i + 1) + ". Horse " + horse.getSymbol() + 
+                             " - FINISHED (" + horse.getDistanceTravelled() + " units)");
+        }
+        
+        // Then print horses that fell, sorted by distance
+        List<Horse> fallenHorses = new ArrayList<>();
         for (Horse horse : lanes)
         {
-            sortedHorses.add(horse);
+            if (horse.hasFallen())
+            {
+                fallenHorses.add(horse);
+            }
         }
-        Collections.sort(sortedHorses, (h1, h2) -> Double.compare(h2.getDistanceTravelled(), h1.getDistanceTravelled()));
+        Collections.sort(fallenHorses, (h1, h2) -> Double.compare(h2.getDistanceTravelled(), h1.getDistanceTravelled()));
         
-        // Print leaderboard
-        for (int i = 0; i < sortedHorses.size(); i++)
+        for (Horse horse : fallenHorses)
         {
-            Horse horse = sortedHorses.get(i);
-            System.out.print((i + 1) + ". Horse " + horse.getSymbol());
-            if (raceWonBy(horse))
-            {
-                System.out.println(" - FINISHED (" + horse.getDistanceTravelled() + " units)");
-            }
-            else if (horse.hasFallen())
-            {
-                System.out.println(" - FELL at " + horse.getDistanceTravelled() + " units");
-            }
-            else
-            {
-                System.out.println(" - Travelled " + horse.getDistanceTravelled() + " units");
-            }
+            System.out.println((finishOrder.size() + fallenHorses.indexOf(horse) + 1) + 
+                             ". Horse " + horse.getSymbol() + 
+                             " - FELL at " + horse.getDistanceTravelled() + " units");
         }
         
-        // Announce winner if any horse finished
-        boolean anyoneFinished = false;
-        for (Horse horse : sortedHorses)
+        // Announce winner (first horse to finish)
+        if (!finishOrder.isEmpty())
         {
-            if (raceWonBy(horse))
-            {
-                anyoneFinished = true;
-                System.out.println("\nWINNER: Horse " + horse.getSymbol() + "!");
-                break;
-            }
+            System.out.println("\nWINNER: Horse " + finishOrder.get(0).getSymbol() + "!");
         }
-        
-        if (!anyoneFinished)
+        else
         {
             System.out.println("\nNo winners - all horses fell!");
         }
@@ -235,7 +234,7 @@ public class Race
         //else print the horse's symbol
         if(theHorse.hasFallen())
         {
-            System.out.print('F');
+            System.out.print('X');
         }
         else
         {
