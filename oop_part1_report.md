@@ -74,6 +74,35 @@ Include screenshots of your tests with detailed explanations. Describe the tests
 
 ## Task 2: Improve the Race class
 
-• List identified issues and explain them.
+### Identified Issues with Current Implementation
 
-• Provide updated code for your Race class with explanations of changes.
+#### Missing null checks
+
+#### Method name mismatches of Horse class
+
+#### Hardcoded lane count
+
+#### No winner announcement
+
+#### Handling of alternative race outcomes(all horses fall/ties)
+
+#### Inconsistent States
+
+The [startRace()](vscode-file://vscode-app/Applications/Visual Studio Code - Insiders.app/Contents/Resources/app/out/vs/code/electron-sandbox/workbench/workbench.html) method directly modifies the state of the Horse objects (by calling [goBackToStart()](vscode-file://vscode-app/Applications/Visual Studio Code - Insiders.app/Contents/Resources/app/out/vs/code/electron-sandbox/workbench/workbench.html)) without providing a way to reset the [Race](vscode-file://vscode-app/Applications/Visual Studio Code - Insiders.app/Contents/Resources/app/out/vs/code/electron-sandbox/workbench/workbench.html) object itself. This could lead to unexpected behavior if you want to run multiple races with the same [Race](vscode-file://vscode-app/Applications/Visual Studio Code - Insiders.app/Contents/Resources/app/out/vs/code/electron-sandbox/workbench/workbench.html) object.
+
+#### Code organization(final vars and such)
+
+#### Invalid math????
+
+**Invalid math in fall probability**: The formula 0.1*theHorse.getConfidence()*theHorse.getConfidence() means horses with higher confidence are more likely to fall, which seems counterintuitive. This means a confident horse (1.0) has a 10% chance of falling while an unconfident horse (0.1) has only a 0.1% chance.
+
+### Updated Code
+
+#### Dyanmic Lane Count
+
+#### Handling of alternative race outcomes
+
+#### Winner announcement and Leaderboard
+
+
+
