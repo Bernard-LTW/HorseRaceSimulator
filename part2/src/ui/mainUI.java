@@ -9,33 +9,10 @@ public class MainUI extends JFrame {
     
     public MainUI() {
 
-        List<String> horses = Arrays.asList(
-            "Thunderbolt",
-            "Silver Wind",
-            "Desert Storm",
-            "Mountain Spirit",
-            "Ocean Breeze"
-        );
-        
-        List<String> tracks = Arrays.asList(
-            "Dirt Track",
-            "Turf Track",
-            "Synthetic Track",
-            "Muddy Track"
-        );
-        
-        List<String> weatherConditions = Arrays.asList(
-            "Sunny",
-            "Rainy",
-            "Cloudy",
-            "Windy",
-            "Stormy"
-        );
-
 
         setTitle("Horse Race Simulator");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setMinimumSize(new Dimension(800, 600));
+        setMinimumSize(new Dimension(1200, 600));
         
         // Create card layout for switching between panels
         JPanel mainContainer = new JPanel(new CardLayout());
@@ -43,14 +20,18 @@ public class MainUI extends JFrame {
         // Create panels
         MainPanel mainPanel = new MainPanel();
         TransactionPanel transactionPanel = new TransactionPanel();
-        NewRacePanel newRacePanel = new NewRacePanel(horses, weatherConditions);
+        NewRacePanel newRacePanel = new NewRacePanel();
         TrackManagementPanel trackManagementPanel = new TrackManagementPanel();
+        BettingPanel bettingPanel = new BettingPanel();
+        RaceSimulationPanel raceSimulationPanel = new RaceSimulationPanel();
         
         // Add panels to card layout
         mainContainer.add(mainPanel, "MAIN");
         mainContainer.add(transactionPanel, "TRANSACTIONS");
         mainContainer.add(newRacePanel, "RACE_SETUP");
         mainContainer.add(trackManagementPanel, "TRACK_MANAGEMENT");
+        mainContainer.add(bettingPanel, "BETTING");
+        mainContainer.add(raceSimulationPanel, "RACE_SIMULATION");
         
         // Add container to frame
         add(mainContainer);

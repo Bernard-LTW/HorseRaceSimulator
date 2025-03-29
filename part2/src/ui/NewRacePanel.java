@@ -2,6 +2,7 @@ package ui;
 
 import models.Track;
 import models.Horse;
+import models.Race;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
@@ -11,8 +12,11 @@ public class NewRacePanel extends JPanel {
     private JCheckBox[] horseCheckboxes;
     private JComboBox<String> trackSelector;
     private JComboBox<String> weatherSelector;
+    private Race currentRace;
+    private JPanel horsesPanel;
+    private JPanel selectorsPanel;
 
-    public NewRacePanel(List<String> horses, List<String> weatherConditions) {
+    public NewRacePanel() {
         setLayout(new BorderLayout(10, 20));
         setBackground(new Color(70, 130, 180));
 
@@ -33,8 +37,8 @@ public class NewRacePanel extends JPanel {
         contentPanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 20, 20));
         contentPanel.setBackground(Color.WHITE);
 
-        // Style the selectors panel
-        JPanel selectorsPanel = new JPanel(new GridLayout(2, 2, 10, 10));
+        // Create selectors panel
+        selectorsPanel = new JPanel(new GridLayout(2, 2, 10, 10));
         selectorsPanel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(70, 130, 180), 2),
                 "Race Conditions",
@@ -44,32 +48,8 @@ public class NewRacePanel extends JPanel {
                 new Color(70, 130, 180)));
         selectorsPanel.setBackground(Color.WHITE);
 
-        // Load tracks from CSV
-        List<Track> tracks = FileIO.loadTracks();
-        String[] trackNames = tracks.stream()
-                .map(Track::getName)
-                .toArray(String[]::new);
-
-        // Style the labels and selectors
-        JLabel trackLabel = new JLabel("Select Track: ");
-        trackLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        trackSelector = new JComboBox<>(trackNames);
-        trackSelector.setFont(new Font("Arial", Font.PLAIN, 14));
-
-        JLabel weatherLabel = new JLabel("Weather Condition: ");
-        weatherLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        weatherSelector = new JComboBox<>(weatherConditions.toArray(new String[0]));
-        weatherSelector.setFont(new Font("Arial", Font.PLAIN, 14));
-
-        selectorsPanel.add(trackLabel);
-        selectorsPanel.add(trackSelector);
-        selectorsPanel.add(weatherLabel);
-        selectorsPanel.add(weatherSelector);
-
-        contentPanel.add(selectorsPanel, BorderLayout.NORTH);
-
-        // Style the horses panel
-        JPanel horsesPanel = new JPanel();
+        // Create horses panel
+        horsesPanel = new JPanel();
         horsesPanel.setLayout(new BoxLayout(horsesPanel, BoxLayout.Y_AXIS));
         horsesPanel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(70, 130, 180), 2),
@@ -79,20 +59,6 @@ public class NewRacePanel extends JPanel {
                 new Font("Arial", Font.BOLD, 14),
                 new Color(70, 130, 180)));
         horsesPanel.setBackground(Color.WHITE);
-
-        horseCheckboxes = new JCheckBox[horses.size()];
-
-        for (int i = 0; i < horses.size(); i++) {
-            horseCheckboxes[i] = new JCheckBox(horses.get(i));
-            horseCheckboxes[i].setFont(new Font("Arial", Font.PLAIN, 14));
-            horseCheckboxes[i].setBackground(Color.WHITE);
-            horsesPanel.add(horseCheckboxes[i]);
-            horsesPanel.add(Box.createRigidArea(new Dimension(0, 5)));
-        }
-
-        JScrollPane scrollPane = new JScrollPane(horsesPanel);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        contentPanel.add(scrollPane, BorderLayout.CENTER);
 
         // Style the buttons panel
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
@@ -107,8 +73,72 @@ public class NewRacePanel extends JPanel {
         buttonsPanel.add(startRaceButton);
         buttonsPanel.add(backButton);
 
+        contentPanel.add(selectorsPanel, BorderLayout.NORTH);
+        contentPanel.add(new JScrollPane(horsesPanel), BorderLayout.CENTER);
         contentPanel.add(buttonsPanel, BorderLayout.SOUTH);
         add(contentPanel, BorderLayout.CENTER);
+
+        // Add component listener to refresh data when panel becomes visible
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentShown(java.awt.event.ComponentEvent e) {
+                refreshData();
+            }
+        });
+
+        // Initial data load
+        refreshData();
+    }
+
+    private void refreshData() {
+        // Clear existing components
+        selectorsPanel.removeAll();
+        horsesPanel.removeAll();
+
+        // Load tracks from CSV
+        List<Track> tracks = FileIO.loadTracks();
+        String[] trackNames = tracks.stream()
+                .map(Track::getName)
+                .toArray(String[]::new);
+
+        // Get weather conditions from enum
+        String[] weatherConditions = java.util.Arrays.stream(Track.TrackCondition.values())
+                .map(Enum::name)
+                .toArray(String[]::new);
+
+        // Style the labels and selectors
+        JLabel trackLabel = new JLabel("Select Track: ");
+        trackLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        trackSelector = new JComboBox<>(trackNames);
+        trackSelector.setFont(new Font("Arial", Font.PLAIN, 14));
+
+        JLabel weatherLabel = new JLabel("Weather Condition: ");
+        weatherLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        weatherSelector = new JComboBox<>(weatherConditions);
+        weatherSelector.setFont(new Font("Arial", Font.PLAIN, 14));
+
+        selectorsPanel.add(trackLabel);
+        selectorsPanel.add(trackSelector);
+        selectorsPanel.add(weatherLabel);
+        selectorsPanel.add(weatherSelector);
+
+        // Load horses from CSV
+        Horse[] horses = FileIO.ingestHorses();
+        horseCheckboxes = new JCheckBox[horses.length];
+
+        for (int i = 0; i < horses.length; i++) {
+            horseCheckboxes[i] = new JCheckBox(horses[i].getName());
+            horseCheckboxes[i].setFont(new Font("Arial", Font.PLAIN, 14));
+            horseCheckboxes[i].setBackground(Color.WHITE);
+            horsesPanel.add(horseCheckboxes[i]);
+            horsesPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+        }
+
+        // Revalidate and repaint
+        selectorsPanel.revalidate();
+        selectorsPanel.repaint();
+        horsesPanel.revalidate();
+        horsesPanel.repaint();
     }
 
     private JButton createStyledButton(String text) {
@@ -162,8 +192,8 @@ public class NewRacePanel extends JPanel {
         // Set the weather condition
         selectedTrack.setCondition(condition);
 
-        String[] selectedHorses = getSelectedHorses();
-        if (selectedHorses.length == 0) {
+        String[] selectedHorseNames = getSelectedHorses();
+        if (selectedHorseNames.length == 0) {
             JOptionPane.showMessageDialog(this,
                     "Please select at least one horse!",
                     "Selection Required",
@@ -174,19 +204,53 @@ public class NewRacePanel extends JPanel {
         // Create a new track with the correct number of lanes based on selected horses
         Track raceTrack = new Track(
             selectedTrack.getName(),
-            selectedHorses.length,
+            selectedHorseNames.length,
             selectedTrack.getLength(),
             selectedTrack.getShape(),
             selectedTrack.getCondition()
         );
 
-        for (String horseName : selectedHorses) {
-            Horse horse = new Horse('H', horseName, 1.0); // Default confidence
-            horse.adjustPerformance(raceTrack);
-            System.out.println(horse.getName() + " travelled: " + horse.getDistanceTravelled() + " units.");
+        // Create the race
+        currentRace = new Race(raceTrack);
+        
+        // Load all horses from CSV
+        Horse[] allHorses = FileIO.ingestHorses();
+        
+        // Add selected horses to the race
+        int lane = 1;
+        for (String horseName : selectedHorseNames) {
+            // Find the horse in the loaded horses array
+            Horse selectedHorse = null;
+            for (Horse horse : allHorses) {
+                if (horse.getName().equals(horseName)) {
+                    selectedHorse = horse;
+                    break;
+                }
+            }
+            
+            if (selectedHorse != null) {
+                currentRace.addHorse(selectedHorse, lane++);
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        "Error: Horse " + horseName + " not found in database",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
         }
 
-        System.out.println("Race setup complete with track: " + selectedTrackName);
+        // Get the parent container (CardLayout)
+        Container parent = getParent();
+        if (parent != null) {
+            CardLayout cardLayout = (CardLayout) parent.getLayout();
+            
+            // Get the BettingPanel and pass the race
+            BettingPanel bettingPanel = (BettingPanel) parent.getComponent(4); // Index 4 is BETTING panel
+            bettingPanel.setRace(currentRace);
+            
+            // Switch to betting panel
+            cardLayout.show(parent, "BETTING");
+        }
     }
 
     /**

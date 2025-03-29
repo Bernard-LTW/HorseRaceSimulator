@@ -1,0 +1,184 @@
+package ui;
+
+import models.Race;
+import models.Track;
+import javax.swing.*;
+import java.awt.*;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
+public class RaceSimulationPanel extends JPanel {
+    private JTextArea raceDisplay;
+    private PrintStream originalOut;
+    private ByteArrayOutputStream outputStream;
+    private PrintStream printStream;
+    private StringBuilder currentOutput = new StringBuilder();
+    private Timer updateTimer;
+
+    public RaceSimulationPanel() {
+        setLayout(new BorderLayout(10, 20));
+        setBackground(new Color(70, 130, 180));
+
+        // Header
+        JPanel headerPanel = new JPanel(new BorderLayout(0, 15));
+        headerPanel.setBorder(BorderFactory.createEmptyBorder(30, 20, 20, 20));
+        headerPanel.setBackground(new Color(70, 130, 180));
+
+        JLabel titleLabel = new JLabel("Race Simulation", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 32));
+        titleLabel.setForeground(Color.WHITE);
+        headerPanel.add(titleLabel, BorderLayout.CENTER);
+
+        add(headerPanel, BorderLayout.NORTH);
+
+        // Main content panel
+        JPanel contentPanel = new JPanel(new BorderLayout(10, 10));
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 20, 20));
+        contentPanel.setBackground(Color.WHITE);
+
+        // Create race display
+        raceDisplay = new JTextArea();
+        raceDisplay.setFont(new Font("Monospaced", Font.PLAIN, 14));
+        raceDisplay.setEditable(false);
+        raceDisplay.setBackground(Color.WHITE);
+        raceDisplay.setForeground(Color.BLACK);
+        raceDisplay.setLineWrap(true);
+        raceDisplay.setWrapStyleWord(true);
+
+        JScrollPane scrollPane = new JScrollPane(raceDisplay);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setBackground(Color.WHITE);
+        scrollPane.getViewport().setBackground(Color.WHITE);
+        scrollPane.getViewport().setForeground(Color.BLACK);
+        contentPanel.add(scrollPane, BorderLayout.CENTER);
+
+        // Buttons panel
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        buttonsPanel.setBackground(Color.WHITE);
+
+        JButton backButton = createStyledButton("Back to Main");
+        backButton.addActionListener(e -> goBack());
+
+        buttonsPanel.add(backButton);
+        contentPanel.add(buttonsPanel, BorderLayout.SOUTH);
+        add(contentPanel, BorderLayout.CENTER);
+
+        // Add component listener to handle cleanup when panel is hidden
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentHidden(java.awt.event.ComponentEvent e) {
+                cleanup();
+            }
+        });
+    }
+
+    private void setupOutputRedirection() {
+        originalOut = System.out;
+        outputStream = new ByteArrayOutputStream();
+        printStream = new PrintStream(outputStream);
+        System.setOut(printStream);
+    }
+
+    private void cleanup() {
+        // Stop the update timer if it's running
+        if (updateTimer != null && updateTimer.isRunning()) {
+            updateTimer.stop();
+        }
+        
+        // Restore original output stream
+        if (originalOut != null) {
+            System.setOut(originalOut);
+        }
+    }
+
+    public void startRace(Race race) {
+        // Clear previous output
+        if (outputStream != null) {
+            outputStream.reset();
+        }
+        raceDisplay.setText("");
+        currentOutput.setLength(0);
+        
+        // Stop any existing timer
+        if (updateTimer != null && updateTimer.isRunning()) {
+            updateTimer.stop();
+        }
+        
+        // Setup output redirection before starting the race
+        setupOutputRedirection();
+        
+        // Run the race in a separate thread
+        new Thread(() -> {
+            try {
+                // Start the race
+                race.startRace();
+                
+                // After race is complete, update the display one final time
+                SwingUtilities.invokeLater(() -> {
+                    raceDisplay.setText(outputStream.toString());
+                    raceDisplay.setCaretPosition(raceDisplay.getDocument().getLength());
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                // Clean up the output redirection
+                cleanup();
+            }
+        }).start();
+
+        // Start a timer to update the display every 100ms
+        updateTimer = new Timer(100, e -> {
+            try {
+                if (outputStream != null) {
+                    String newOutput = outputStream.toString();
+                    if (!newOutput.equals(currentOutput.toString())) {
+                        currentOutput.setLength(0);
+                        currentOutput.append(newOutput);
+                        raceDisplay.setText(currentOutput.toString());
+                        raceDisplay.setCaretPosition(raceDisplay.getDocument().getLength());
+                    }
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+        updateTimer.start();
+    }
+
+    public void setRace(Race race) {
+        // Start the race immediately when received
+        startRace(race);
+    }
+
+    private JButton createStyledButton(String text) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Arial", Font.BOLD, 14));
+        button.setPreferredSize(new Dimension(150, 35));
+        button.setBackground(new Color(41, 128, 185));
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorderPainted(true);
+        button.setBorder(BorderFactory.createLineBorder(new Color(52, 152, 219), 2));
+        button.setOpaque(true);
+        button.setContentAreaFilled(true);
+
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(52, 152, 219));
+                button.setBorder(BorderFactory.createLineBorder(new Color(133, 193, 233), 2));
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(41, 128, 185));
+                button.setBorder(BorderFactory.createLineBorder(new Color(52, 152, 219), 2));
+            }
+        });
+
+        return button;
+    }
+
+    private void goBack() {
+        CardLayout cardLayout = (CardLayout) getParent().getLayout();
+        cardLayout.show(getParent(), "RACE_SETUP");
+    }
+} 

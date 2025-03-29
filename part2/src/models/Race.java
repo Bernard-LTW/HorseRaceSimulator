@@ -67,6 +67,9 @@ public class Race {
         }
         
         while (!raceComplete) {
+            // Clear the output stream before printing new frame
+            System.out.flush();
+            
             for (Horse horse : lanes) {
                 if (!raceWonBy(horse) && !horse.hasFallen()) {
                     moveHorse(horse);
@@ -151,18 +154,19 @@ public class Race {
      * Print the race on the terminal
      */
     private void printRace() {
-        System.out.print("\033[H\033[2J");
-        
+        // Print top border
         multiplePrint('=', track.getLength() + 3);
         System.out.println();
         
+        // Print each lane
         for (Horse horse : lanes) {
             printLane(horse);
             System.out.println();
         }
         
+        // Print bottom border
         multiplePrint('=', track.getLength() + 3);
-        System.out.println();    
+        System.out.println();
     }
     
     /**
