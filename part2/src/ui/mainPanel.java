@@ -2,6 +2,8 @@ package ui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Arrays;
+import java.util.List;
 
 public class MainPanel extends JPanel {
 
@@ -14,39 +16,52 @@ public class MainPanel extends JPanel {
         bannerLabel.setForeground(new Color(51, 51, 51));
         bannerLabel.setBorder(BorderFactory.createEmptyBorder(30, 0, 30, 0));
 
-        // Create panel for buttons with GridLayout
-        JPanel buttonPanel = new JPanel(new GridLayout(2, 2, 20, 20));
+        // Create panel for buttons with GridLayout (changed to 2x3)
+        JPanel buttonPanel = new JPanel(new GridLayout(2, 3, 20, 20));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         // Create and style the buttons
-        JButton newRaceButton = createMenuButton("New Race");
         JButton transactionsButton = createMenuButton("Transactions");
-        JButton manageHorsesButton = createMenuButton("Manage Horses");
-        JButton manageRacesButton = createMenuButton("Manage Races");
+        JButton raceSetupButton = createMenuButton("New Race");
+        JButton bettingStatsButton = createMenuButton("Betting Stats");
+        JButton horseStatsButton = createMenuButton("Horse Stats");
+        JButton horseCustomizerButton = createMenuButton("Horse Customizer");
+        JButton trackCustomizerButton = createMenuButton("Track Customizer");
 
         // Add action listeners
-        newRaceButton.addActionListener(e -> {
-            // TODO: Implement new race functionality
-        });
-
         transactionsButton.addActionListener(e -> {
             CardLayout cardLayout = (CardLayout) getParent().getLayout();
             cardLayout.show(getParent(), "TRANSACTIONS");
         });
 
-        manageHorsesButton.addActionListener(e -> {
-            // TODO: Implement manage horses functionality
+        raceSetupButton.addActionListener(e -> {
+            CardLayout cardLayout = (CardLayout) getParent().getLayout();
+            cardLayout.show(getParent(), "RACE_SETUP");
         });
 
-        manageRacesButton.addActionListener(e -> {
-            // TODO: Implement manage races functionality
+        bettingStatsButton.addActionListener(e -> {
+            // TODO: Implement betting stats functionality
+        });
+
+        horseStatsButton.addActionListener(e -> {
+            // TODO: Implement horse stats functionality
+        });
+
+        horseCustomizerButton.addActionListener(e -> {
+            // TODO: Implement horse customizer functionality
+        });
+
+        trackCustomizerButton.addActionListener(e -> {
+            // TODO: Implement track customizer functionality
         });
 
         // Add buttons to the grid
-        buttonPanel.add(newRaceButton);
         buttonPanel.add(transactionsButton);
-        buttonPanel.add(manageHorsesButton);
-        buttonPanel.add(manageRacesButton);
+        buttonPanel.add(raceSetupButton);
+        buttonPanel.add(bettingStatsButton);
+        buttonPanel.add(horseStatsButton);
+        buttonPanel.add(horseCustomizerButton);
+        buttonPanel.add(trackCustomizerButton);
 
         // Add components to main panel
         add(bannerLabel, BorderLayout.NORTH);
