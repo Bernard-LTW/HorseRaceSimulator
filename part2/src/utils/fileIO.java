@@ -1,6 +1,8 @@
 package utils;
 
-import models.Horse;  // Importing Horse class from models package
+import models.Horse;
+import models.Track;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -17,6 +19,8 @@ public class FileIO {  // Class names should start with capital letters
     // File paths
     private static final String HORSE_CSV_FILE = "part2/src/data/horses.csv";
     private static final String TRANSACTION_CSV_FILE = "part2/src/data/transaction.csv";
+    private static final String TRACKS_CSV_FILE = "part2/src/data/tracks/custom.csv";
+
 
 
     /**
@@ -176,6 +180,75 @@ public class FileIO {  // Class names should start with capital letters
             }
             return true;
         } catch (IOException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Loads track configurations from the CSV file.
+     * @return List of Track objects.
+     */
+    public static List<Track> loadTracks() {
+        List<Track> tracks = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(TRACKS_CSV_FILE))) {
+            String line;
+            boolean firstLine = true;
+            while ((line = reader.readLine()) != null) {
+                if (firstLine) {  // Skip header
+                    firstLine = false;
+                    continue;
+                }
+                String[] data = line.split(",");
+                if (data.length == 3) {
+                    String name = data[0];
+                    int length = Integer.parseInt(data[1]);
+                    Track.TrackShape shape = Track.TrackShape.valueOf(data[2].toUpperCase());
+                    tracks.add(new Track(name, 3, length, shape, Track.TrackCondition.DRY));
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error loading tracks: " + e.getMessage());
+        }
+        return tracks;
+    }
+
+    /**
+     * Saves a track configuration to the CSV file.
+     * @param track The Track object to save.
+     */
+    public static void saveTrack(Track track) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(TRACKS_CSV_FILE, true))) {
+            writer.write(track.getLaneCount() + "," +
+                         track.getLength() + "," +
+                         track.getShape().name() + "," +
+                         track.getCondition().name());
+            writer.newLine();
+        } catch (IOException e) {
+            System.err.println("Error saving track: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Saves multiple track configurations to the CSV file.
+     * @param tracks List of Track objects to save.
+     * @return boolean indicating success
+     */
+    public static boolean saveTracks(List<Track> tracks) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(TRACKS_CSV_FILE))) {
+            // Write header
+            writer.write("Name,Length,Shape");
+            writer.newLine();
+            
+            for (Track track : tracks) {
+                writer.write(String.format("%s,%d,%s",
+                    track.getName(),
+                    track.getLength(),
+                    track.getShape().name()));
+                writer.newLine();
+            }
+            return true;
+        } catch (IOException e) {
+            System.err.println("Error saving tracks: " + e.getMessage());
             return false;
         }
     }

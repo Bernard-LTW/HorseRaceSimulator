@@ -1,17 +1,20 @@
 package ui;
 
+import models.Track;
+import models.Horse;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import utils.FileIO;
 
 public class NewRacePanel extends JPanel {
     private JCheckBox[] horseCheckboxes;
     private JComboBox<String> trackSelector;
     private JComboBox<String> weatherSelector;
 
-    public NewRacePanel(List<String> horses, List<String> tracks, List<String> weatherConditions) {
+    public NewRacePanel(List<String> horses, List<String> weatherConditions) {
         setLayout(new BorderLayout(10, 20));
-        setBackground(new Color(70, 130, 180)); // Match main panel color
+        setBackground(new Color(70, 130, 180));
 
         // Style the title panel
         JPanel headerPanel = new JPanel(new BorderLayout(0, 15));
@@ -41,10 +44,16 @@ public class NewRacePanel extends JPanel {
                 new Color(70, 130, 180)));
         selectorsPanel.setBackground(Color.WHITE);
 
+        // Load tracks from CSV
+        List<Track> tracks = FileIO.loadTracks();
+        String[] trackNames = tracks.stream()
+                .map(Track::getName)
+                .toArray(String[]::new);
+
         // Style the labels and selectors
         JLabel trackLabel = new JLabel("Select Track: ");
         trackLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        trackSelector = new JComboBox<>(tracks.toArray(new String[0]));
+        trackSelector = new JComboBox<>(trackNames);
         trackSelector.setFont(new Font("Arial", Font.PLAIN, 14));
 
         JLabel weatherLabel = new JLabel("Weather Condition: ");
@@ -88,7 +97,7 @@ public class NewRacePanel extends JPanel {
         // Style the buttons panel
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         buttonsPanel.setBackground(Color.WHITE);
-        
+
         JButton startRaceButton = createStyledButton("Start Race");
         JButton backButton = createStyledButton("Back");
 
@@ -106,20 +115,24 @@ public class NewRacePanel extends JPanel {
         JButton button = new JButton(text);
         button.setFont(new Font("Arial", Font.BOLD, 14));
         button.setPreferredSize(new Dimension(150, 35));
-        button.setBackground(new Color(70, 130, 180));
+        button.setBackground(new Color(41, 128, 185));  // Darker blue for better contrast
         button.setForeground(Color.WHITE);
         button.setFocusPainted(false);
-        button.setBorderPainted(false);
+        button.setBorderPainted(true);
+        button.setBorder(BorderFactory.createLineBorder(new Color(52, 152, 219), 2));
         button.setOpaque(true);
+        button.setContentAreaFilled(true);  // Ensure the button background is filled
 
         // Add hover effect
         button.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(new Color(100, 149, 237));
+                button.setBackground(new Color(52, 152, 219));  // Lighter blue on hover
+                button.setBorder(BorderFactory.createLineBorder(new Color(133, 193, 233), 2));
             }
 
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(new Color(70, 130, 180));
+                button.setBackground(new Color(41, 128, 185));  // Back to darker blue
+                button.setBorder(BorderFactory.createLineBorder(new Color(52, 152, 219), 2));
             }
         });
 
@@ -127,10 +140,29 @@ public class NewRacePanel extends JPanel {
     }
 
     private void startRace() {
-        String selectedTrack = (String) trackSelector.getSelectedItem();
+        String selectedTrackName = (String) trackSelector.getSelectedItem();
         String selectedWeather = (String) weatherSelector.getSelectedItem();
-        String[] selectedHorses = getSelectedHorses();
+        Track.TrackCondition condition = Track.TrackCondition.valueOf(selectedWeather.toUpperCase());
 
+        // Get the selected track from CSV
+        List<Track> tracks = FileIO.loadTracks();
+        Track selectedTrack = tracks.stream()
+                .filter(t -> t.getName().equals(selectedTrackName))
+                .findFirst()
+                .orElse(null);
+
+        if (selectedTrack == null) {
+            JOptionPane.showMessageDialog(this,
+                    "Error: Selected track not found",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Set the weather condition
+        selectedTrack.setCondition(condition);
+
+        String[] selectedHorses = getSelectedHorses();
         if (selectedHorses.length == 0) {
             JOptionPane.showMessageDialog(this,
                     "Please select at least one horse!",
@@ -139,11 +171,22 @@ public class NewRacePanel extends JPanel {
             return;
         }
 
-        // TODO: Implement race start logic
-        System.out.println("Starting race with:");
-        System.out.println("Horses: " + String.join(", ", selectedHorses));
-        System.out.println("Track: " + selectedTrack);
-        System.out.println("Weather: " + selectedWeather);
+        // Create a new track with the correct number of lanes based on selected horses
+        Track raceTrack = new Track(
+            selectedTrack.getName(),
+            selectedHorses.length,
+            selectedTrack.getLength(),
+            selectedTrack.getShape(),
+            selectedTrack.getCondition()
+        );
+
+        for (String horseName : selectedHorses) {
+            Horse horse = new Horse('H', horseName, 1.0); // Default confidence
+            horse.adjustPerformance(raceTrack);
+            System.out.println(horse.getName() + " travelled: " + horse.getDistanceTravelled() + " units.");
+        }
+
+        System.out.println("Race setup complete with track: " + selectedTrackName);
     }
 
     /**

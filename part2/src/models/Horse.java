@@ -83,4 +83,25 @@ public class Horse
         this.horseSymbol=newSymbol;
     }
     
+    public void adjustPerformance(Track track) {
+        double speedModifier = track.getSpeedModifier();
+        double fallRiskModifier = track.getFallRiskModifier();
+        double shapeAdjustment = track.getShapeSpeedAdjustment(this.distanceTravelled);
+
+        // Adjust confidence based on fall risk
+        this.horseConfidence -= fallRiskModifier;
+        if (this.horseConfidence < 0) {
+            this.horseConfidence = 0;
+        }
+
+        // Simulate falling
+        if (Math.random() < fallRiskModifier) {
+            this.fallen = true;
+        }
+
+        // Adjust distance travelled based on speed modifiers
+        if (!this.fallen) {
+            this.distanceTravelled += (int) (1 * speedModifier * shapeAdjustment);
+        }
+    }
 }

@@ -1,18 +1,28 @@
 package models;
 
-
 import utils.FileIO;
 import models.Race;
 
 public class RaceTest {
     public static void main(String[] args) {
+
         Horse[] horses = FileIO.ingestHorses();
-        //for every horse, add it to a race and run the race
+        // Create a test track
+        Track testTrack = new Track("Test Track", horses.length, 30, Track.TrackShape.OVAL, Track.TrackCondition.DRY);
+        
+        // Create a race with the test track
+        Race testRace = new Race(testTrack);
+        
+        // Load horses from CSV
+        
+        
+        // Add horses to the race
         int lane = 1;
-        Race testRace = new Race(30, horses.length);
         for(Horse horse : horses) {
             testRace.addHorse(horse, lane++);
         }
+        
+        // Start the race
         testRace.startRace();
     }
 }

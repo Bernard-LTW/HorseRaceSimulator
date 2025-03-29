@@ -43,13 +43,14 @@ public class MainUI extends JFrame {
         // Create panels
         MainPanel mainPanel = new MainPanel();
         TransactionPanel transactionPanel = new TransactionPanel();
-        // TODO : implement the csv readings replace sample data
-        NewRacePanel newRacePanel = new NewRacePanel(horses,tracks,weatherConditions);
+        NewRacePanel newRacePanel = new NewRacePanel(horses, weatherConditions);
+        TrackManagementPanel trackManagementPanel = new TrackManagementPanel();
         
         // Add panels to card layout
         mainContainer.add(mainPanel, "MAIN");
         mainContainer.add(transactionPanel, "TRANSACTIONS");
         mainContainer.add(newRacePanel, "RACE_SETUP");
+        mainContainer.add(trackManagementPanel, "TRACK_MANAGEMENT");
         
         // Add container to frame
         add(mainContainer);

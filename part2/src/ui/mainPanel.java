@@ -52,7 +52,8 @@ public class MainPanel extends JPanel {
         });
 
         trackCustomizerButton.addActionListener(e -> {
-            // TODO: Implement track customizer functionality
+            CardLayout cardLayout = (CardLayout) getParent().getLayout();
+            cardLayout.show(getParent(), "TRACK_MANAGEMENT");
         });
 
         // Add buttons to the grid
