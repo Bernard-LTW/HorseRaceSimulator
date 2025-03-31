@@ -1,7 +1,7 @@
 Name,Length,Shape
-Medium Track,400,OVAL
-Long Track,1000,OVAL
-Figure 8,600,FIGURE_EIGHT
-testing,100,FIGURE_EIGHT
-test2,100,OVAL
-a,100,OVAL
+Medium Track,40,OVAL
+Long Track,100,OVAL
+Figure 8,60,FIGURE_EIGHT
+testing,10,FIGURE_EIGHT
+test2,10,OVAL
+a,10,OVAL

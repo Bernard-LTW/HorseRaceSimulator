@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MainPanel extends JPanel {
-
     public MainPanel() {
         setLayout(new BorderLayout(10, 20)); // Add some spacing between components
 

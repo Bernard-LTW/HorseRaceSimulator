@@ -41,9 +41,8 @@ public class HorseTest {
         horse3.moveForward();
         horse3.moveForward();
         horse3.moveForward(); // Should not move when fallen
-        int position = horse3.getDistanceTravelled();
         System.out.println("Position after attempted move while fallen: " + horse3.getDistanceTravelled() + 
-                          " (Expected: " + position + ")");
+                          " (Expected: 2)");
         System.out.println();
     }
 }
