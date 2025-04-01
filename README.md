@@ -1,41 +1,67 @@
-# ECS414U Course Work - Horse Race Simulator
+# Horse Race Simulator
+
+A Java-based Object-Oriented Programming project that simulates a horse race with a graphical user interface.
+
+## Project Structure
+
+```
+.
+├── part1/                # Basic horse race implementation
+│   ├── src/              # Source code for part 1
+│   └── README.md         # Part 1 specific instructions
+├── part2/                # GUI implementation
+│   └── src/              # Source code for part 2
+│       ├── core/         # Core game logic
+│       ├── models/       # Data models
+│       ├── ui/           # User interface components
+│       ├── utils/        # Utility classes
+│       ├── data/         # Data files
+│       └── images/       # Image resources
+└── README.md             # This file
+```
+
+## Prerequisites
+
+- Java Development Kit (JDK) 11 or higher
 
 ## Setup Instructions
-To run Part 1:
+
+### Part 1: Basic Implementation
+
 ```bash
-javac part1/*.java
+# Navigate to part1 directory
+cd part1
 
+# Compile the Java files
+javac *.java
+
+# Run the tests
 java -cp part1 HorseTest
-
 java -cp part1 RaceTest
 ```
 
+### Part 2: GUI Implementation
 
-## Part 1 Testing Output Example
-```
-Test 1: Basic initialization
-Symbol: ♞ (Expected: ♞)
-Name: Thunder (Expected: Thunder)
-Confidence: 0.8 (Expected: 0.8)
-Position: 0 (Expected: 0)
-Has fallen: false (Expected: false)
+```bash
+# Navigate to part2 directory
+cd part2
 
-Test 2: Invalid confidence values
-Too high confidence: 0.0 (Expected: 1.0)
-Too low confidence: 0.0 (Expected: 0.0)
+# Compile the Java files
+javac -cp ".:src" src/**/*.java
 
-Test 3: Moving the horse
-Initial position: 0
-After move 1: 1 (Expected: 1)
-After move 2: 2 (Expected: 2)
-
-Test 4: Horse falling
-Initial fallen state: false (Expected: false)
-After running fall(), fallen state: true (Expected: true)
-After fallen, distance travelled is: 2 (Expected: 2)
-Position after attempted move while fallen: 2 (Expected: 2)
+# Run the application
+java -cp ".:src" ui.MainUI
 ```
 
-## Dependencies
+## Features
 
-## Usage Guidelines
+### Part 1
+- Basic horse class implementation
+- Race simulation
+- Unit tests
+
+### Part 2
+- Graphical User Interface
+- Real-time race visualization
+- Horse statistics and betting system
+- Race history tracking
