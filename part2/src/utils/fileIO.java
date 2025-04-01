@@ -424,16 +424,6 @@ public class FileIO {  // Class names should start with capital letters
             .orElse(null);
     }
 
-    /**
-     * Stores a race result in the races.csv file
-     * @param raceID The unique identifier for the race
-     * @param horseName The name of the horse
-     * @param symbol The symbol representing the horse
-     * @param confidence The horse's confidence value
-     * @param distanceTravelled The distance the horse travelled
-     * @param position The horse's finishing position
-     * @param raceDuration The duration of the race in milliseconds
-     */
     public static void storeRaceResult(String raceID, String horseName, char symbol, 
             double confidence, int distanceTravelled, int position, long raceDuration) {
         try {
