@@ -24,6 +24,7 @@ public class MainUI extends JFrame {
         TrackManagementPanel trackManagementPanel = new TrackManagementPanel();
         BettingPanel bettingPanel = new BettingPanel();
         RaceSimulationPanel raceSimulationPanel = new RaceSimulationPanel();
+        HorseCustomizerPanel horseCustomizerPanel = new HorseCustomizerPanel();
         
         // Add panels to card layout
         mainContainer.add(mainPanel, "MAIN");
@@ -32,6 +33,7 @@ public class MainUI extends JFrame {
         mainContainer.add(trackManagementPanel, "TRACK_MANAGEMENT");
         mainContainer.add(bettingPanel, "BETTING");
         mainContainer.add(raceSimulationPanel, "RACE_SIMULATION");
+        mainContainer.add(horseCustomizerPanel, "HORSE_CUSTOMIZER");
         
         // Add container to frame
         add(mainContainer);

@@ -1,4 +1,4 @@
-name,symbol,confidence
+name,symbol,confidence,breed,coatColor,baseSpeed,baseEndurance
 "Thunder",'A',0.6
 "Lightning",'B',0.8
 "Tornado",'C️',0.7

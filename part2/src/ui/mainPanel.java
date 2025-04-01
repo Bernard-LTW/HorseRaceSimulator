@@ -47,7 +47,8 @@ public class MainPanel extends JPanel {
         });
 
         horseCustomizerButton.addActionListener(e -> {
-            // TODO: Implement horse customizer functionality
+            CardLayout cardLayout = (CardLayout) getParent().getLayout();
+            cardLayout.show(getParent(), "HORSE_CUSTOMIZER");
         });
 
         trackCustomizerButton.addActionListener(e -> {

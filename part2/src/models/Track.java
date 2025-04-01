@@ -2,7 +2,7 @@ package models;
 
 public class Track {
     public enum TrackShape {
-        OVAL, FIGURE_EIGHT, CUSTOM
+        OVAL, FIGURE_EIGHT
     }
 
     public enum TrackCondition {
@@ -97,9 +97,6 @@ public class Track {
                 if (distanceTravelled % (length / 2) == 0) {
                     return 0.7; // Slow down at intersections
                 }
-                return 1.0;
-            case CUSTOM:
-                // Custom logic can be added here
                 return 1.0;
             default:
                 return 1.0;

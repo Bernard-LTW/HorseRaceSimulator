@@ -1,7 +1,4 @@
 Name,Length,Shape
-Medium Track,40,OVAL
-Long Track,100,OVAL
-Figure 8,60,FIGURE_EIGHT
-testing,10,FIGURE_EIGHT
+Oval,20,OVAL
+Figure 8,30,FIGURE_EIGHT
 test2,10,OVAL
-a,10,OVAL

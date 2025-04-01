@@ -2,6 +2,7 @@ package utils;
 
 import models.Horse;
 import models.Track;
+import models.HorseItem;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -20,8 +21,10 @@ public class FileIO {  // Class names should start with capital letters
     private static final String HORSE_CSV_FILE = "part2/src/data/horses.csv";
     private static final String TRANSACTION_CSV_FILE = "part2/src/data/transaction.csv";
     private static final String TRACKS_CSV_FILE = "part2/src/data/tracks/custom.csv";
-
-
+    private static final String BREEDS_CSV_FILE = "part2/src/data/breeds.csv";
+    private static final String COAT_COLORS_CSV_FILE = "part2/src/data/coat_colors.csv";
+    private static final String EQUIPMENT_CSV_FILE = "part2/src/data/equipment.csv";
+    private static final String ACCESSORIES_CSV_FILE = "part2/src/data/accessories.csv";
 
     /**
      * Reads horse data from CSV file and returns array of Horse objects
@@ -37,15 +40,22 @@ public class FileIO {  // Class names should start with capital letters
             
             while ((line = br.readLine()) != null) {
                 // Split the CSV line but handle quoted values correctly
-                String[] horseDdata = parseCSVLine(line);
+                String[] horseData = parseCSVLine(line);
                 
                 // Extract data
-                String name = horseDdata[0].replace("\"", ""); // Remove quotes from name
-                char symbol = horseDdata[1].charAt(1); // Get the character at index 1 (after the opening quote)
-                double confidence = Double.parseDouble(horseDdata[2]);
+                String name = horseData[0].replace("\"", ""); // Remove quotes from name
+                char symbol = horseData[1].charAt(1); // Get the character at index 1 (after the opening quote)
+                double confidence = Double.parseDouble(horseData[2]);
+                
+                // Set default values for new attributes
+                String breed = "Thoroughbred"; // Default breed
+                String coatColor = "Bay"; // Default coat color
+                double[] breedAttributes = getBreedAttributes(breed);
+                double baseSpeed = breedAttributes != null ? breedAttributes[0] : 1.0;
+                double baseEndurance = breedAttributes != null ? breedAttributes[1] : 1.0;
                 
                 // Create Horse object and add to list
-                Horse horse = new Horse(symbol, name, confidence);
+                Horse horse = new Horse(symbol, name, confidence, breed, coatColor, baseSpeed, baseEndurance);
                 horses.add(horse);
             }
         } catch (IOException e) {
@@ -250,6 +260,125 @@ public class FileIO {  // Class names should start with capital letters
         } catch (IOException e) {
             System.err.println("Error saving tracks: " + e.getMessage());
             return false;
+        }
+    }
+
+    public static List<String> loadBreeds() {
+        List<String> breeds = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(BREEDS_CSV_FILE))) {
+            String line;
+            reader.readLine(); // Skip header
+            while ((line = reader.readLine()) != null) {
+                String[] parts = parseCSVLine(line);
+                if (parts.length > 0) {
+                    breeds.add(parts[0]);
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error loading breeds: " + e.getMessage());
+        }
+        return breeds;
+    }
+
+    public static List<String> loadCoatColors() {
+        List<String> colors = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(COAT_COLORS_CSV_FILE))) {
+            String line;
+            reader.readLine(); // Skip header
+            while ((line = reader.readLine()) != null) {
+                String[] parts = parseCSVLine(line);
+                if (parts.length > 0) {
+                    colors.add(parts[0]);
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error loading coat colors: " + e.getMessage());
+        }
+        return colors;
+    }
+
+    public static List<HorseItem> loadEquipment() {
+        List<HorseItem> equipment = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(EQUIPMENT_CSV_FILE))) {
+            String line;
+            reader.readLine(); // Skip header
+            while ((line = reader.readLine()) != null) {
+                String[] parts = parseCSVLine(line);
+                if (parts.length >= 6) {
+                    equipment.add(new HorseItem(
+                        parts[0], // name
+                        parts[1], // type
+                        Double.parseDouble(parts[2]), // speed modifier
+                        Double.parseDouble(parts[3]), // endurance modifier
+                        Double.parseDouble(parts[4]), // confidence modifier
+                        parts[5]  // description
+                    ));
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error loading equipment: " + e.getMessage());
+        }
+        return equipment;
+    }
+
+    public static List<HorseItem> loadAccessories() {
+        List<HorseItem> accessories = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(ACCESSORIES_CSV_FILE))) {
+            String line;
+            reader.readLine(); // Skip header
+            while ((line = reader.readLine()) != null) {
+                String[] parts = parseCSVLine(line);
+                if (parts.length >= 3) {
+                    accessories.add(new HorseItem(
+                        parts[0], // name
+                        parts[1], // type
+                        parts[2]  // description
+                    ));
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error loading accessories: " + e.getMessage());
+        }
+        return accessories;
+    }
+
+    public static double[] getBreedAttributes(String breedName) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(BREEDS_CSV_FILE))) {
+            String line;
+            reader.readLine(); // Skip header
+            while ((line = reader.readLine()) != null) {
+                String[] parts = parseCSVLine(line);
+                if (parts.length >= 5 && parts[0].equals(breedName)) {
+                    return new double[]{
+                        Double.parseDouble(parts[1]), // base speed
+                        Double.parseDouble(parts[2]), // base endurance
+                        Double.parseDouble(parts[3])  // base confidence
+                    };
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error getting breed attributes: " + e.getMessage());
+        }
+        return null;
+    }
+
+    public static void saveHorses(Horse[] horses) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(HORSE_CSV_FILE))) {
+            writer.write("name,symbol,confidence,breed,coatColor,baseSpeed,baseEndurance");
+            writer.newLine();
+            for (Horse horse : horses) {
+                writer.write(String.format("\"%s\",'%c',%.2f,%s,%s,%.2f,%.2f%n",
+                    horse.getName(),
+                    horse.getSymbol(),
+                    horse.getConfidence(),
+                    horse.getBreed(),
+                    horse.getCoatColor(),
+                    horse.getBaseSpeed(),
+                    horse.getBaseEndurance()
+                ));
+            }
+        } catch (IOException e) {
+            System.err.println("Error saving horses: " + e.getMessage());
         }
     }
 }

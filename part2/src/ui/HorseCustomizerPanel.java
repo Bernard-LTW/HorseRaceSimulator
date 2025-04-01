@@ -1,0 +1,437 @@
+package ui;
+
+import models.Horse;
+import models.HorseItem;
+import utils.FileIO;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
+
+public class HorseCustomizerPanel extends JPanel {
+    private JTable horseTable;
+    private DefaultTableModel tableModel;
+    private List<Horse> horses;
+    private JButton createHorseBtn;
+    private JButton editHorseBtn;
+    private JButton customizeEquipmentBtn;
+    private JButton backButton;
+
+    public HorseCustomizerPanel() {
+        setLayout(new BorderLayout(10, 20));
+        setBackground(new Color(70, 130, 180));
+        
+        // Load horses
+        horses = List.of(FileIO.ingestHorses());
+        
+        // Create header panel
+        JPanel headerPanel = createHeaderPanel();
+        add(headerPanel, BorderLayout.NORTH);
+        
+        // Create main content panel
+        JPanel contentPanel = createContentPanel();
+        add(contentPanel, BorderLayout.CENTER);
+        
+        // Create button panel
+        JPanel buttonPanel = createButtonPanel();
+        add(buttonPanel, BorderLayout.SOUTH);
+    }
+
+    private JPanel createHeaderPanel() {
+        JPanel headerPanel = new JPanel(new BorderLayout(0, 15));
+        headerPanel.setBorder(BorderFactory.createEmptyBorder(30, 20, 20, 20));
+        headerPanel.setBackground(new Color(70, 130, 180));
+
+        JLabel titleLabel = new JLabel("Horse Customizer", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 32));
+        titleLabel.setForeground(Color.WHITE);
+        headerPanel.add(titleLabel, BorderLayout.CENTER);
+
+        return headerPanel;
+    }
+
+    private JPanel createContentPanel() {
+        JPanel contentPanel = new JPanel(new BorderLayout(10, 10));
+        contentPanel.setBackground(Color.WHITE);
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 20, 20));
+
+        // Create table model
+        String[] columns = {"Name", "Symbol", "Breed", "Coat Color", "Confidence"};
+        tableModel = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        // Create table
+        horseTable = new JTable(tableModel);
+        horseTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        horseTable.setFont(new Font("Arial", Font.PLAIN, 14));
+        horseTable.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
+        horseTable.getTableHeader().setBackground(new Color(70, 130, 180));
+        horseTable.getTableHeader().setForeground(Color.WHITE);
+        horseTable.setRowHeight(30);
+        horseTable.setShowGrid(true);
+        horseTable.setGridColor(new Color(200, 200, 200));
+        horseTable.setBackground(Color.WHITE);
+        horseTable.setSelectionBackground(new Color(230, 240, 250));
+        horseTable.setSelectionForeground(Color.BLACK);
+
+        // Add scroll pane
+        JScrollPane scrollPane = new JScrollPane(horseTable);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollPane.getViewport().setBackground(Color.WHITE);
+        contentPanel.add(scrollPane, BorderLayout.CENTER);
+
+        // Populate table
+        updateHorseTable();
+
+        return contentPanel;
+    }
+
+    private JPanel createButtonPanel() {
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        buttonPanel.setBackground(Color.WHITE);
+
+        createHorseBtn = createStyledButton("Create New Horse");
+        editHorseBtn = createStyledButton("Edit Selected Horse");
+        customizeEquipmentBtn = createStyledButton("Customize Equipment");
+        backButton = createStyledButton("Back");
+
+        buttonPanel.add(createHorseBtn);
+        buttonPanel.add(editHorseBtn);
+        buttonPanel.add(customizeEquipmentBtn);
+        buttonPanel.add(backButton);
+
+        // Add action listeners
+        createHorseBtn.addActionListener(e -> showCreateHorseDialog());
+        editHorseBtn.addActionListener(e -> showEditHorseDialog());
+        customizeEquipmentBtn.addActionListener(e -> showEquipmentCustomizer());
+        backButton.addActionListener(e -> goBack());
+
+        return buttonPanel;
+    }
+
+    private void showCreateHorseDialog() {
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Create New Horse", true);
+        dialog.setLayout(new BorderLayout(10, 10));
+        dialog.setBackground(Color.WHITE);
+        dialog.setSize(400, 300);
+
+        // Create input panel
+        JPanel inputPanel = new JPanel(new GridLayout(4, 2, 5, 5));
+        inputPanel.setBackground(Color.WHITE);
+        inputPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JTextField nameField = new JTextField();
+        JComboBox<String> breedSelector = new JComboBox<>(FileIO.loadBreeds().toArray(new String[0]));
+        JComboBox<String> coatColorSelector = new JComboBox<>(FileIO.loadCoatColors().toArray(new String[0]));
+        JTextField symbolField = new JTextField();
+
+        inputPanel.add(new JLabel("Name:"));
+        inputPanel.add(nameField);
+        inputPanel.add(new JLabel("Breed:"));
+        inputPanel.add(breedSelector);
+        inputPanel.add(new JLabel("Coat Color:"));
+        inputPanel.add(coatColorSelector);
+        inputPanel.add(new JLabel("Symbol:"));
+        inputPanel.add(symbolField);
+
+        // Create button panel
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel.setBackground(Color.WHITE);
+        JButton createBtn = createStyledButton("Create");
+        JButton cancelBtn = createStyledButton("Cancel");
+
+        createBtn.addActionListener(e -> {
+            String name = nameField.getText().trim();
+            String breed = (String) breedSelector.getSelectedItem();
+            String coatColor = (String) coatColorSelector.getSelectedItem();
+            String symbol = symbolField.getText().trim();
+
+            if (name.isEmpty() || symbol.isEmpty()) {
+                JOptionPane.showMessageDialog(dialog,
+                        "Please fill in all fields",
+                        "Input Required",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            double[] breedAttributes = FileIO.getBreedAttributes(breed);
+            if (breedAttributes == null) {
+                JOptionPane.showMessageDialog(dialog,
+                        "Error loading breed attributes",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            Horse newHorse = new Horse(
+                symbol.charAt(0),
+                name,
+                breedAttributes[2], // base confidence from breed
+                breed,
+                coatColor,
+                breedAttributes[0], // base speed
+                breedAttributes[1]  // base endurance
+            );
+
+            horses.add(newHorse);
+            FileIO.saveHorses(horses.toArray(new Horse[0]));
+            updateHorseTable();
+            dialog.dispose();
+        });
+
+        cancelBtn.addActionListener(e -> dialog.dispose());
+
+        buttonPanel.add(createBtn);
+        buttonPanel.add(cancelBtn);
+
+        dialog.add(inputPanel, BorderLayout.CENTER);
+        dialog.add(buttonPanel, BorderLayout.SOUTH);
+
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+
+    private void showEditHorseDialog() {
+        int selectedRow = horseTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this,
+                    "Please select a horse to edit",
+                    "No Selection",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        Horse selectedHorse = horses.get(selectedRow);
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Edit Horse", true);
+        dialog.setLayout(new BorderLayout(10, 10));
+        dialog.setBackground(Color.WHITE);
+        dialog.setSize(400, 300);
+
+        // Create input panel
+        JPanel inputPanel = new JPanel(new GridLayout(4, 2, 5, 5));
+        inputPanel.setBackground(Color.WHITE);
+        inputPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JTextField nameField = new JTextField(selectedHorse.getName());
+        JComboBox<String> breedSelector = new JComboBox<>(FileIO.loadBreeds().toArray(new String[0]));
+        breedSelector.setSelectedItem(selectedHorse.getBreed());
+        JComboBox<String> coatColorSelector = new JComboBox<>(FileIO.loadCoatColors().toArray(new String[0]));
+        coatColorSelector.setSelectedItem(selectedHorse.getCoatColor());
+        JTextField symbolField = new JTextField(String.valueOf(selectedHorse.getSymbol()));
+
+        inputPanel.add(new JLabel("Name:"));
+        inputPanel.add(nameField);
+        inputPanel.add(new JLabel("Breed:"));
+        inputPanel.add(breedSelector);
+        inputPanel.add(new JLabel("Coat Color:"));
+        inputPanel.add(coatColorSelector);
+        inputPanel.add(new JLabel("Symbol:"));
+        inputPanel.add(symbolField);
+
+        // Create button panel
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel.setBackground(Color.WHITE);
+        JButton saveBtn = createStyledButton("Save");
+        JButton cancelBtn = createStyledButton("Cancel");
+
+        saveBtn.addActionListener(e -> {
+            String name = nameField.getText().trim();
+            String breed = (String) breedSelector.getSelectedItem();
+            String coatColor = (String) coatColorSelector.getSelectedItem();
+            String symbol = symbolField.getText().trim();
+
+            if (name.isEmpty() || symbol.isEmpty()) {
+                JOptionPane.showMessageDialog(dialog,
+                        "Please fill in all fields",
+                        "Input Required",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            double[] breedAttributes = FileIO.getBreedAttributes(breed);
+            if (breedAttributes == null) {
+                JOptionPane.showMessageDialog(dialog,
+                        "Error loading breed attributes",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            selectedHorse.setSymbol(symbol.charAt(0));
+            horses.set(selectedRow, selectedHorse);
+            FileIO.saveHorses(horses.toArray(new Horse[0]));
+            updateHorseTable();
+            dialog.dispose();
+        });
+
+        cancelBtn.addActionListener(e -> dialog.dispose());
+
+        buttonPanel.add(saveBtn);
+        buttonPanel.add(cancelBtn);
+
+        dialog.add(inputPanel, BorderLayout.CENTER);
+        dialog.add(buttonPanel, BorderLayout.SOUTH);
+
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+
+    private void showEquipmentCustomizer() {
+        int selectedRow = horseTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this,
+                    "Please select a horse to customize",
+                    "No Selection",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        Horse selectedHorse = horses.get(selectedRow);
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), 
+                "Customize " + selectedHorse.getName() + "'s Equipment", true);
+        dialog.setLayout(new BorderLayout(10, 10));
+        dialog.setBackground(Color.WHITE);
+        dialog.setSize(600, 400);
+
+        // Create main content panel
+        JPanel contentPanel = new JPanel(new BorderLayout(10, 10));
+        contentPanel.setBackground(Color.WHITE);
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // Create equipment panel
+        JPanel equipmentPanel = new JPanel(new BorderLayout(5, 5));
+        equipmentPanel.setBackground(Color.WHITE);
+        equipmentPanel.setBorder(BorderFactory.createTitledBorder("Equipment"));
+
+        DefaultListModel<String> equipmentModel = new DefaultListModel<>();
+        JList<String> equipmentList = new JList<>(equipmentModel);
+        equipmentList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        equipmentList.setFont(new Font("Arial", Font.PLAIN, 14));
+        equipmentList.setBackground(Color.WHITE);
+        equipmentList.setSelectionBackground(new Color(230, 240, 250));
+        equipmentList.setSelectionForeground(Color.BLACK);
+
+        // Populate equipment list
+        for (HorseItem item : selectedHorse.getEquipment()) {
+            equipmentModel.addElement(item.getName());
+        }
+
+        JScrollPane equipmentScroll = new JScrollPane(equipmentList);
+        equipmentScroll.setBorder(BorderFactory.createEmptyBorder());
+        equipmentScroll.getViewport().setBackground(Color.WHITE);
+
+        // Create equipment buttons
+        JPanel equipmentButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
+        equipmentButtons.setBackground(Color.WHITE);
+        JButton addEquipmentBtn = createStyledButton("Add Equipment");
+        JButton removeEquipmentBtn = createStyledButton("Remove Equipment");
+        equipmentButtons.add(addEquipmentBtn);
+        equipmentButtons.add(removeEquipmentBtn);
+
+        equipmentPanel.add(equipmentScroll, BorderLayout.CENTER);
+        equipmentPanel.add(equipmentButtons, BorderLayout.SOUTH);
+
+        // Create accessories panel
+        JPanel accessoriesPanel = new JPanel(new BorderLayout(5, 5));
+        accessoriesPanel.setBackground(Color.WHITE);
+        accessoriesPanel.setBorder(BorderFactory.createTitledBorder("Accessories"));
+
+        DefaultListModel<String> accessoriesModel = new DefaultListModel<>();
+        JList<String> accessoriesList = new JList<>(accessoriesModel);
+        accessoriesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        accessoriesList.setFont(new Font("Arial", Font.PLAIN, 14));
+        accessoriesList.setBackground(Color.WHITE);
+        accessoriesList.setSelectionBackground(new Color(230, 240, 250));
+        accessoriesList.setSelectionForeground(Color.BLACK);
+
+        // Populate accessories list
+        for (HorseItem item : selectedHorse.getAccessories()) {
+            accessoriesModel.addElement(item.getName());
+        }
+
+        JScrollPane accessoriesScroll = new JScrollPane(accessoriesList);
+        accessoriesScroll.setBorder(BorderFactory.createEmptyBorder());
+        accessoriesScroll.getViewport().setBackground(Color.WHITE);
+
+        // Create accessories buttons
+        JPanel accessoriesButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
+        accessoriesButtons.setBackground(Color.WHITE);
+        JButton addAccessoryBtn = createStyledButton("Add Accessory");
+        JButton removeAccessoryBtn = createStyledButton("Remove Accessory");
+        accessoriesButtons.add(addAccessoryBtn);
+        accessoriesButtons.add(removeAccessoryBtn);
+
+        accessoriesPanel.add(accessoriesScroll, BorderLayout.CENTER);
+        accessoriesPanel.add(accessoriesButtons, BorderLayout.SOUTH);
+
+        // Add panels to content
+        contentPanel.add(equipmentPanel, BorderLayout.NORTH);
+        contentPanel.add(accessoriesPanel, BorderLayout.CENTER);
+
+        // Create button panel
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel.setBackground(Color.WHITE);
+        JButton closeBtn = createStyledButton("Close");
+        buttonPanel.add(closeBtn);
+
+        closeBtn.addActionListener(e -> dialog.dispose());
+
+        dialog.add(contentPanel, BorderLayout.CENTER);
+        dialog.add(buttonPanel, BorderLayout.SOUTH);
+
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+
+    private void updateHorseTable() {
+        tableModel.setRowCount(0);
+        for (Horse horse : horses) {
+            tableModel.addRow(new Object[]{
+                horse.getName(),
+                horse.getSymbol(),
+                horse.getBreed(),
+                horse.getCoatColor(),
+                String.format("%.2f", horse.getConfidence())
+            });
+        }
+    }
+
+    private JButton createStyledButton(String text) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Arial", Font.BOLD, 14));
+        button.setPreferredSize(new Dimension(150, 35));
+        button.setBackground(new Color(41, 128, 185));  // Darker blue for better contrast
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorderPainted(true);
+        button.setBorder(BorderFactory.createLineBorder(new Color(52, 152, 219), 2));
+        button.setOpaque(true);
+        button.setContentAreaFilled(true);  // Ensure the button background is filled
+
+        // Add hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(52, 152, 219));  // Lighter blue on hover
+                button.setBorder(BorderFactory.createLineBorder(new Color(133, 193, 233), 2));
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(41, 128, 185));  // Back to darker blue
+                button.setBorder(BorderFactory.createLineBorder(new Color(52, 152, 219), 2));
+            }
+        });
+
+        return button;
+    }
+
+    private void goBack() {
+        CardLayout cardLayout = (CardLayout) getParent().getLayout();
+        cardLayout.show(getParent(), "MAIN");
+    }
+} 
