@@ -1,11 +1,15 @@
 package ui;
 
 import models.Race;
+import models.Horse;
+import models.Bet;
+import core.BetManager;
 import models.Track;
 import javax.swing.*;
 import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.List;
 
 public class RaceSimulationPanel extends JPanel {
     private JTextArea raceDisplay;
@@ -14,10 +18,14 @@ public class RaceSimulationPanel extends JPanel {
     private PrintStream printStream;
     private StringBuilder currentOutput = new StringBuilder();
     private Timer updateTimer;
+    private Race currentRace;
+    private BetManager betManager;
 
-    public RaceSimulationPanel() {
+    public RaceSimulationPanel(BetManager betManager) {
         setLayout(new BorderLayout(10, 20));
         setBackground(new Color(70, 130, 180));
+
+        this.betManager = betManager;
 
         // Header
         JPanel headerPanel = new JPanel(new BorderLayout(0, 15));
@@ -117,6 +125,10 @@ public class RaceSimulationPanel extends JPanel {
                 SwingUtilities.invokeLater(() -> {
                     raceDisplay.setText(outputStream.toString());
                     raceDisplay.setCaretPosition(raceDisplay.getDocument().getLength());
+                    
+                    // Process bets and show summary only after race is complete
+                    betManager.processRaceResults(race);
+                    showBetSummary(race);
                 });
             } catch (Exception e) {
                 e.printStackTrace();
@@ -146,8 +158,56 @@ public class RaceSimulationPanel extends JPanel {
     }
 
     public void setRace(Race race) {
+        this.currentRace = race;
         // Start the race immediately when received
         startRace(race);
+    }
+
+    private void showBetSummary(Race race) {
+        List<Bet> raceBets = betManager.getRaceBets(race.getRaceID());
+        if (raceBets.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                "No bets were placed on this race.",
+                "Race Complete",
+                JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        
+        // Calculate total bets and winnings
+        double totalBets = 0.0;
+        double totalWinnings = 0.0;
+        StringBuilder summary = new StringBuilder();
+        summary.append("<html><body style='width: 400px'>");
+        summary.append("<h2>Betting Summary</h2>");
+        summary.append("<p>Race ID: ").append(race.getRaceID()).append("</p>");
+        summary.append("<p>Winner: ").append(race.getFinishOrder().get(0).getName()).append("</p>");
+        summary.append("<br><h3>Your Bets:</h3>");
+        summary.append("<table style='width:100%'>");
+        summary.append("<tr><th>Horse</th><th>Amount</th><th>Result</th><th>Winnings</th></tr>");
+        
+        for (Bet bet : raceBets) {
+            totalBets += bet.getAmount();
+            totalWinnings += bet.getWinnings();
+            
+            summary.append("<tr>");
+            summary.append("<td>").append(bet.getHorseName()).append("</td>");
+            summary.append("<td>$").append(String.format("%.2f", bet.getAmount())).append("</td>");
+            summary.append("<td>").append(bet.isWon() ? "Won" : "Lost").append("</td>");
+            summary.append("<td>$").append(String.format("%.2f", bet.getWinnings())).append("</td>");
+            summary.append("</tr>");
+        }
+        
+        summary.append("</table>");
+        summary.append("<br><h3>Summary:</h3>");
+        summary.append("<p>Total Bets: $").append(String.format("%.2f", totalBets)).append("</p>");
+        summary.append("<p>Total Winnings: $").append(String.format("%.2f", totalWinnings)).append("</p>");
+        summary.append("<p>Net Result: $").append(String.format("%.2f", totalWinnings - totalBets)).append("</p>");
+        summary.append("</body></html>");
+        
+        JOptionPane.showMessageDialog(this,
+            summary.toString(),
+            "Race Complete - Betting Summary",
+            JOptionPane.INFORMATION_MESSAGE);
     }
 
     private JButton createStyledButton(String text) {

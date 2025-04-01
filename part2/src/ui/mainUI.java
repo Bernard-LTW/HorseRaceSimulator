@@ -4,12 +4,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
+import core.BetManager;
 
 public class MainUI extends JFrame {
     
     public MainUI() {
-
-
         setTitle("Horse Race Simulator");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setMinimumSize(new Dimension(1200, 600));
@@ -17,13 +16,16 @@ public class MainUI extends JFrame {
         // Create card layout for switching between panels
         JPanel mainContainer = new JPanel(new CardLayout());
         
+        // Create a single BetManager instance to share between panels
+        BetManager betManager = new BetManager();
+        
         // Create panels
         MainPanel mainPanel = new MainPanel();
         TransactionPanel transactionPanel = new TransactionPanel();
         NewRacePanel newRacePanel = new NewRacePanel();
         TrackManagementPanel trackManagementPanel = new TrackManagementPanel();
-        BettingPanel bettingPanel = new BettingPanel();
-        RaceSimulationPanel raceSimulationPanel = new RaceSimulationPanel();
+        BettingPanel bettingPanel = new BettingPanel(betManager);
+        RaceSimulationPanel raceSimulationPanel = new RaceSimulationPanel(betManager);
         HorseCustomizerPanel horseCustomizerPanel = new HorseCustomizerPanel();
         
         // Add panels to card layout

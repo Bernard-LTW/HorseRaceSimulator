@@ -3,11 +3,13 @@ package ui;
 import models.Horse;
 import models.HorseItem;
 import utils.FileIO;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.List;
 
 public class HorseCustomizerPanel extends JPanel {
@@ -15,7 +17,6 @@ public class HorseCustomizerPanel extends JPanel {
     private DefaultTableModel tableModel;
     private List<Horse> horses;
     private JButton createHorseBtn;
-    private JButton editHorseBtn;
     private JButton customizeEquipmentBtn;
     private JButton backButton;
 
@@ -24,7 +25,7 @@ public class HorseCustomizerPanel extends JPanel {
         setBackground(new Color(70, 130, 180));
         
         // Load horses
-        horses = List.of(FileIO.ingestHorses());
+        horses = new ArrayList<>(List.of(FileIO.ingestHorses()));
         
         // Create header panel
         JPanel headerPanel = createHeaderPanel();

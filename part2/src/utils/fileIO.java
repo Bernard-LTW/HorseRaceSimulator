@@ -3,6 +3,8 @@ package utils;
 import models.Horse;
 import models.Track;
 import models.HorseItem;
+import models.Transaction;
+import models.Bet;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -11,7 +13,6 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
-import models.Transaction;
 import java.util.Arrays;
 import java.io.File;
 import java.io.PrintWriter;
@@ -29,6 +30,7 @@ public class FileIO {  // Class names should start with capital letters
     private static final String EQUIPMENT_CSV_FILE = "part2/src/data/horses/equipment.csv";
     private static final String ACCESSORIES_CSV_FILE = "part2/src/data/horses/accessories.csv";
     private static final String RACES_CSV_FILE = "part2/src/data/races.csv";
+    private static final String BETS_CSV_FILE = "part2/src/data/bets/bets.csv";
 
 
     /**
@@ -216,18 +218,28 @@ public class FileIO {  // Class names should start with capital letters
     }
 
     public static boolean saveTransactions(List<Transaction> transactions) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(TRANSACTION_CSV_FILE))) {
-            // Write header
-            writer.write("Date,Time,Type,Amount");
-            writer.newLine();
+        try {
+            // Create the file if it doesn't exist
+            File file = new File(TRANSACTION_CSV_FILE);
+            boolean fileExists = file.exists();
             
-            // Write transactions
-            for (Transaction transaction : transactions) {
-                writer.write(transaction.toCsvString());
-                writer.newLine();
+            // Append the transactions to the file
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, true))) {
+                // Write header if file is new
+                if (!fileExists) {
+                    writer.write("Date,Time,Type,Amount");
+                    writer.newLine();
+                }
+                
+                // Write transactions
+                for (Transaction transaction : transactions) {
+                    writer.write(transaction.toCsvString());
+                    writer.newLine();
+                }
             }
             return true;
         } catch (IOException e) {
+            System.err.println("Error saving transactions: " + e.getMessage());
             return false;
         }
     }
@@ -447,6 +459,71 @@ public class FileIO {  // Class names should start with capital letters
             }
         } catch (IOException e) {
             System.err.println("Error storing race result: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Load bets from CSV file
+     * @return List of Bet objects
+     */
+    public static List<Bet> loadBets() {
+        List<Bet> bets = new ArrayList<>();
+        
+        try (BufferedReader reader = new BufferedReader(new FileReader(BETS_CSV_FILE))) {
+            String line;
+            // Skip header line
+            reader.readLine();
+            
+            while ((line = reader.readLine()) != null) {
+                String[] data = parseCSVLine(line);
+                if (data.length == 8) {
+                    // Create a temporary Horse object to pass to Bet constructor
+                    Horse tempHorse = new Horse(
+                        data[4].charAt(0),  // horse symbol
+                        data[3],            // horse name
+                        1.0,                // default confidence
+                        "",                 // empty breed
+                        ""                  // empty coat color
+                    );
+                    
+                    Bet bet = new Bet(
+                        data[2],  // raceId
+                        tempHorse,
+                        Double.parseDouble(data[5]) // amount
+                    );
+                    bet.setWon(Boolean.parseBoolean(data[6]));
+                    bet.setWinnings(Double.parseDouble(data[7]));
+                    
+                    bets.add(bet);
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error loading bets: " + e.getMessage());
+        }
+        
+        return bets;
+    }
+    
+    /**
+     * Save bets to CSV file
+     * @param bets List of Bet objects to save
+     * @return true if successful, false otherwise
+     */
+    public static boolean saveBets(List<Bet> bets) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(BETS_CSV_FILE))) {
+            // Write header
+            writer.write("Date,Time,RaceID,HorseName,HorseSymbol,Amount,Won,Winnings");
+            writer.newLine();
+            
+            // Write bets
+            for (Bet bet : bets) {
+                writer.write(bet.toCsvString());
+                writer.newLine();
+            }
+            return true;
+        } catch (IOException e) {
+            System.err.println("Error saving bets: " + e.getMessage());
+            return false;
         }
     }
 }

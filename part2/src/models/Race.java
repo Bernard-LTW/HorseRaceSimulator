@@ -252,4 +252,12 @@ public class Race {
                 horse.getConfidence(), horse.getDistanceTravelled(), i + 1, finishTime);
         }
     }
+
+    public List<Horse> getFinishOrder() {
+        return finishOrder;
+    }
+    
+    public Horse[] getLanes() {
+        return lanes;
+    }
 }

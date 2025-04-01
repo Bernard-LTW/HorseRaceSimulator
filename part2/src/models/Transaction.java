@@ -14,7 +14,9 @@ public class Transaction {
     
     public enum TransactionType {
         DEPOSIT,
-        WITHDRAWAL
+        WITHDRAWAL,
+        BET,
+        WIN
     }
     
     // Constructor for new transactions

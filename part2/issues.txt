@@ -1,3 +1,3 @@
-- is the add accessories part implemented? also i suppose we need a horse id of some sort to keep track of who has what? how about symbols being unique
 - show the confidence level of the horse on the select horse(new race) screen
+- Input validate the char for symbol on add horse?
 - 
