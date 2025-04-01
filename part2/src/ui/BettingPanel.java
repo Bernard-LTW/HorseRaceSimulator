@@ -279,7 +279,7 @@ public class BettingPanel extends JPanel {
         // Calculate total bet amount
         double totalBetAmount = 0.0;
         for (int row = 0; row < currentBetsModel.getRowCount(); row++) {
-            String amountStr = ((String) currentBetsModel.getValueAt(row, 2))
+            String amountStr = ((String) currentBetsModel.getValueAt(row, 3))
                 .replace("$", "")  // Remove dollar sign
                 .replace(",", ""); // Remove commas
             try {
@@ -298,7 +298,7 @@ public class BettingPanel extends JPanel {
         for (int row = 0; row < currentBetsModel.getRowCount(); row++) {
             String horseName = (String) currentBetsModel.getValueAt(row, 0);
             String symbol = (String) currentBetsModel.getValueAt(row, 1);
-            String amountStr = ((String) currentBetsModel.getValueAt(row, 2))
+            String amountStr = ((String) currentBetsModel.getValueAt(row, 3))
                 .replace("$", "")  // Remove dollar sign
                 .replace(",", ""); // Remove commas
             

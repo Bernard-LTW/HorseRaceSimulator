@@ -1,7 +1,7 @@
 name,symbol,confidence,breed,coatColor,equipment,accessories
-"Thunder",'A',0.7200000000000001,Thoroughbred,Bay,Sturdy Horseshoes;Training Bridle,Neck Cover;Tail Bag
+"Thunder",'A',0.7600000000000001,Thoroughbred,Bay,Sturdy Horseshoes;Training Bridle,Neck Cover;Tail Bag
 "Lightning",'B',1.0,Quarter Horse,Chestnut,Light Saddle;Training Bridle,Leg Wraps;Tail Bag
-"Tornado",'C',0.78,Arabian,Black,Heavy Saddle;Sturdy Horseshoes,Racing Blanket;Neck Cover
+"Tornado",'C',0.8200000000000001,Arabian,Black,Heavy Saddle;Sturdy Horseshoes,Racing Blanket;Neck Cover
 "Blizzard",'D',0.9800000000000001,Friesian,White,Sturdy Horseshoes,Neck Cover;Tail Bag
 "Storm",'E',0.89,Morgan,Palomino,Training Bridle,Tail Bag;Leg Wraps
 "Whirlwind",'F',0.79,Appaloosa,Pinto,Light Saddle,Saddle Pad
