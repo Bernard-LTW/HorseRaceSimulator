@@ -12,7 +12,6 @@ import java.util.Map;
 
 public class RaceSimulationPanel extends JPanel {
     private RaceVisualizationPanel visualPanel;
-    private JTextArea resultsArea;
     private Race currentRace;
     private BetManager betManager;
 
@@ -21,17 +20,17 @@ public class RaceSimulationPanel extends JPanel {
         setBackground(new Color(70, 130, 180));
         this.betManager = betManager;
 
-        // Header
-        JPanel headerPanel = new JPanel(new BorderLayout(0, 15));
-        headerPanel.setBorder(BorderFactory.createEmptyBorder(30, 20, 20, 20));
-        headerPanel.setBackground(new Color(70, 130, 180));
+        // // Header
+        // JPanel headerPanel = new JPanel(new BorderLayout(0, 15));
+        // headerPanel.setBorder(BorderFactory.createEmptyBorder(30, 20, 20, 20));
+        // headerPanel.setBackground(new Color(70, 130, 180));
 
-        JLabel titleLabel = new JLabel("Race Simulation", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 32));
-        titleLabel.setForeground(Color.WHITE);
-        headerPanel.add(titleLabel, BorderLayout.CENTER);
+        // JLabel titleLabel = new JLabel("Race Simulation", SwingConstants.CENTER);
+        // titleLabel.setFont(new Font("Arial", Font.BOLD, 32));
+        // titleLabel.setForeground(Color.WHITE);
+        // headerPanel.add(titleLabel, BorderLayout.CENTER);
 
-        add(headerPanel, BorderLayout.NORTH);
+        // add(headerPanel, BorderLayout.NORTH);
 
         // Main content panel
         JPanel contentPanel = new JPanel(new BorderLayout(10, 10));
@@ -39,22 +38,8 @@ public class RaceSimulationPanel extends JPanel {
         contentPanel.setBackground(Color.WHITE);
 
         // Create visual race panel
-        visualPanel = new RaceVisualizationPanel();
+        visualPanel = new RaceVisualizationPanel(betManager);
         contentPanel.add(visualPanel, BorderLayout.CENTER);
-
-        // Create results area
-        resultsArea = new JTextArea();
-        resultsArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
-        resultsArea.setEditable(false);
-        resultsArea.setBackground(Color.WHITE);
-        resultsArea.setForeground(Color.BLACK);
-        resultsArea.setLineWrap(true);
-        resultsArea.setWrapStyleWord(true);
-        resultsArea.setBorder(BorderFactory.createTitledBorder("Race Results"));
-
-        JScrollPane resultsScroll = new JScrollPane(resultsArea);
-        resultsScroll.setPreferredSize(new Dimension(200, 150));
-        contentPanel.add(resultsScroll, BorderLayout.SOUTH);
 
         add(contentPanel, BorderLayout.CENTER);
 
@@ -84,56 +69,13 @@ public class RaceSimulationPanel extends JPanel {
                 // Run the race logic
                 race.startRace();
                 
-                // When race is complete, update results
+                // When race is complete, stop the visualization and show results
                 SwingUtilities.invokeLater(() -> {
                     visualPanel.stopRace();
-                    updateResults();
+                    visualPanel.showRaceResults(race);
                 });
             }).start();
         }
-    }
-
-    private void updateResults() {
-        StringBuilder results = new StringBuilder();
-        results.append("=== RACE RESULTS ===\n\n");
-        
-        List<Horse> finishOrder = currentRace.getFinishOrder();
-        for (int i = 0; i < finishOrder.size(); i++) {
-            Horse horse = finishOrder.get(i);
-            results.append(String.format("%d. %s (%c)\n", 
-                i + 1, 
-                horse.getName(), 
-                horse.getSymbol()));
-        }
-        
-        // Add fallen horses
-        for (Horse horse : currentRace.getLanes()) {
-            if (horse.hasFallen()) {
-                results.append(String.format("DNF. %s (%c) - Fell at %d units\n",
-                    horse.getName(),
-                    horse.getSymbol(),
-                    horse.getDistanceTravelled()));
-            }
-        }
-        
-        // Add betting results if available
-        List<Bet> bets = betManager.getRaceBets(currentRace.getRaceID());
-        if (!bets.isEmpty()) {
-            results.append("\n=== BETTING RESULTS ===\n");
-            for (Bet bet : bets) {
-                results.append(String.format("%s (%c) - $%.2f ", 
-                    bet.getHorseName(),
-                    bet.getHorseSymbol(),
-                    bet.getAmount()));
-                if (bet.isWon()) {
-                    results.append(String.format("WON: $%.2f\n", bet.getWinnings()));
-                } else {
-                    results.append("LOST\n");
-                }
-            }
-        }
-        
-        resultsArea.setText(results.toString());
     }
 
     private void goBack() {
