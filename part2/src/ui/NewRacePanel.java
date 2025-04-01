@@ -121,6 +121,7 @@ public class NewRacePanel extends JPanel {
         weatherLabel.setFont(new Font("Arial", Font.BOLD, 14));
         weatherSelector = new JComboBox<>(weatherConditions);
         weatherSelector.setFont(new Font("Arial", Font.PLAIN, 14));
+        weatherSelector.setSelectedItem("DRY");  // Set default to DRY
 
         selectorsPanel.add(trackLabel);
         selectorsPanel.add(trackSelector);
