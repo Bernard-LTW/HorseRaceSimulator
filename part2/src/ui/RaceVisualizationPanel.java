@@ -31,7 +31,7 @@ public class RaceVisualizationPanel extends JPanel {
     private final Font nameFont = new Font("Arial", Font.BOLD, 12);
     private final Font trackInfoFont = new Font("Arial", Font.BOLD, 14);
     private final Color GRASS_COLOR = new Color(76, 175, 80); // Lighter forest green
-    private final Color TRACK_COLOR = new Color(129, 199, 132); // Lighter track green
+//    private final Color TRACK_COLOR = new Color(129, 199, 132); // Lighter track green
     private final float TRACK_THICKNESS = 1.5f; // Thinner track lines
     private BetManager betManager;
 
@@ -91,26 +91,26 @@ public class RaceVisualizationPanel extends JPanel {
             currentFrameIndices.put(horse, 0);
         } catch (Exception e) {
             System.err.println("Error loading horse frames: " + e.getMessage());
-            createDefaultHorseFrame(horse);
+//            createDefaultHorseFrame(horse);
         }
     }
 
-    private void createDefaultHorseFrame(Horse horse) {
-        int size = calculateHorseSize();
-        BufferedImage defaultFrame = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2d = defaultFrame.createGraphics();
-        g2d.setColor(new Color(
-            (int)(Math.random() * 256),
-            (int)(Math.random() * 256),
-            (int)(Math.random() * 256)
-        ));
-        g2d.fillRect(0, 0, size, size);
-        g2d.dispose();
-        List<BufferedImage> frames = new ArrayList<>();
-        frames.add(defaultFrame);
-        horseFrames.put(horse, frames);
-        currentFrameIndices.put(horse, 0);
-    }
+//    private void createDefaultHorseFrame(Horse horse) {
+//        int size = calculateHorseSize();
+//        BufferedImage defaultFrame = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+//        Graphics2D g2d = defaultFrame.createGraphics();
+//        g2d.setColor(new Color(
+//            (int)(Math.random() * 256),
+//            (int)(Math.random() * 256),
+//            (int)(Math.random() * 256)
+//        ));
+//        g2d.fillRect(0, 0, size, size);
+//        g2d.dispose();
+//        List<BufferedImage> frames = new ArrayList<>();
+//        frames.add(defaultFrame);
+//        horseFrames.put(horse, frames);
+//        currentFrameIndices.put(horse, 0);
+//    }
 
     private void updateAnimationFrames() {
         for (Horse horse : horseFrames.keySet()) {
@@ -247,17 +247,7 @@ public class RaceVisualizationPanel extends JPanel {
 
     public void showRaceResults(Race race) {
         List<Bet> raceBets = betManager.getRaceBets(race.getRaceID());
-        if (raceBets.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                "No bets were placed on this race.",
-                "Race Complete",
-                JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
         
-        // Calculate total bets and winnings
-        double totalBets = 0.0;
-        double totalWinnings = 0.0;
         StringBuilder summary = new StringBuilder();
         summary.append("<html><body style='width: 400px'>");
         summary.append("<h2>Race Summary</h2>");
@@ -285,28 +275,36 @@ public class RaceVisualizationPanel extends JPanel {
         }
         summary.append("</table>");
         
-        // Add betting summary section
-        summary.append("<br><h3>Your Bets:</h3>");
-        summary.append("<table style='width:100%'>");
-        summary.append("<tr><th>Horse</th><th>Amount</th><th>Result</th><th>Winnings</th></tr>");
-        
-        for (Bet bet : raceBets) {
-            totalBets += bet.getAmount();
-            totalWinnings += bet.getWinnings();
+        if (raceBets.isEmpty()) {
+            summary.append("<br><p>No bets were placed on this race.</p>");
+        } else {
+            // Add betting summary section
+            summary.append("<br><h3>Your Bets:</h3>");
+            summary.append("<table style='width:100%'>");
+            summary.append("<tr><th>Horse</th><th>Amount</th><th>Result</th><th>Winnings</th></tr>");
             
-            summary.append("<tr>");
-            summary.append("<td>").append(bet.getHorseName()).append("</td>");
-            summary.append("<td>$").append(String.format("%.2f", bet.getAmount())).append("</td>");
-            summary.append("<td>").append(bet.isWon() ? "Won" : "Lost").append("</td>");
-            summary.append("<td>$").append(String.format("%.2f", bet.getWinnings())).append("</td>");
-            summary.append("</tr>");
+            double totalBets = 0.0;
+            double totalWinnings = 0.0;
+            
+            for (Bet bet : raceBets) {
+                totalBets += bet.getAmount();
+                totalWinnings += bet.getWinnings();
+                
+                summary.append("<tr>");
+                summary.append("<td>").append(bet.getHorseName()).append("</td>");
+                summary.append("<td>$").append(String.format("%.2f", bet.getAmount())).append("</td>");
+                summary.append("<td>").append(bet.isWon() ? "Won" : "Lost").append("</td>");
+                summary.append("<td>$").append(String.format("%.2f", bet.getWinnings())).append("</td>");
+                summary.append("</tr>");
+            }
+            
+            summary.append("</table>");
+            summary.append("<br><h3>Summary:</h3>");
+            summary.append("<p>Total Bets: $").append(String.format("%.2f", totalBets)).append("</p>");
+            summary.append("<p>Total Winnings: $").append(String.format("%.2f", totalWinnings)).append("</p>");
+            summary.append("<p>Net Result: $").append(String.format("%.2f", totalWinnings - totalBets)).append("</p>");
         }
         
-        summary.append("</table>");
-        summary.append("<br><h3>Summary:</h3>");
-        summary.append("<p>Total Bets: $").append(String.format("%.2f", totalBets)).append("</p>");
-        summary.append("<p>Total Winnings: $").append(String.format("%.2f", totalWinnings)).append("</p>");
-        summary.append("<p>Net Result: $").append(String.format("%.2f", totalWinnings - totalBets)).append("</p>");
         summary.append("</body></html>");
         
         JOptionPane.showMessageDialog(this,
@@ -321,9 +319,7 @@ public class RaceVisualizationPanel extends JPanel {
     }
 
     public void startRace() {
-        // Reset horse positions
         initializeHorses();
-        // Start animation
         animationTimer.start();
     }
 

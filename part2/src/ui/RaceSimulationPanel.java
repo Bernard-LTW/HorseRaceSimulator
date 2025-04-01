@@ -20,18 +20,6 @@ public class RaceSimulationPanel extends JPanel {
         setBackground(new Color(70, 130, 180));
         this.betManager = betManager;
 
-        // // Header
-        // JPanel headerPanel = new JPanel(new BorderLayout(0, 15));
-        // headerPanel.setBorder(BorderFactory.createEmptyBorder(30, 20, 20, 20));
-        // headerPanel.setBackground(new Color(70, 130, 180));
-
-        // JLabel titleLabel = new JLabel("Race Simulation", SwingConstants.CENTER);
-        // titleLabel.setFont(new Font("Arial", Font.BOLD, 32));
-        // titleLabel.setForeground(Color.WHITE);
-        // headerPanel.add(titleLabel, BorderLayout.CENTER);
-
-        // add(headerPanel, BorderLayout.NORTH);
-
         // Main content panel
         JPanel contentPanel = new JPanel(new BorderLayout(10, 10));
         contentPanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 20, 20));
@@ -64,12 +52,8 @@ public class RaceSimulationPanel extends JPanel {
             // Start the visual race
             visualPanel.startRace();
             
-            // Start a background thread to run the race logic
             new Thread(() -> {
-                // Run the race logic
                 race.startRace();
-                
-                // When race is complete, stop the visualization and show results
                 SwingUtilities.invokeLater(() -> {
                     visualPanel.stopRace();
                     visualPanel.showRaceResults(race);

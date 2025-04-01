@@ -1,10 +1,10 @@
 name,symbol,confidence,breed,coatColor,equipment,accessories
-"Thunder",'A',0.4,Thoroughbred,Bay,Sturdy Horseshoes;Training Bridle,Neck Cover;Tail Bag
-"Lightning",'B',0.7,Quarter Horse,Chestnut,Light Saddle;Training Bridle,Leg Wraps;Tail Bag
-"Tornado",'C',0.75,Arabian,Black,Heavy Saddle;Sturdy Horseshoes,Racing Blanket;Neck Cover
-"Blizzard",'D',0.44,Friesian,White,Sturdy Horseshoes,Neck Cover;Tail Bag
-"Storm",'E',0.6,Morgan,Palomino,Training Bridle,Tail Bag;Leg Wraps
-"Whirlwind",'F',0.74,Appaloosa,Pinto,Light Saddle,Saddle Pad
-"Tempest",'G',0.79,Clydesdale,Gray,Heavy Saddle,Racing Blanket
-"Testing Boi",'H',0.48000000000000015,Pony,Brown,Training Bridle,Training Blanket
-"Testing222222",'Y',0.9,Appaloosa,Gray,Sturdy Horseshoes;Training Bridle,Neck Cover;Tail Bag
+"Thunder",'A',0.42000000000000004,Thoroughbred,Bay,Sturdy Horseshoes;Training Bridle,Neck Cover;Tail Bag
+"Lightning",'B',0.6799999999999999,Quarter Horse,Chestnut,Light Saddle;Training Bridle,Leg Wraps;Tail Bag
+"Tornado",'C',0.79,Arabian,Black,Heavy Saddle;Sturdy Horseshoes,Racing Blanket;Neck Cover
+"Blizzard",'D',0.42000000000000004,Friesian,White,Sturdy Horseshoes,Neck Cover;Tail Bag
+"Storm",'E',0.62,Morgan,Palomino,Training Bridle,Tail Bag;Leg Wraps
+"Whirlwind",'F',0.77,Appaloosa,Pinto,Light Saddle,Saddle Pad
+"Tempest",'G',0.8200000000000001,Clydesdale,Gray,Heavy Saddle,Racing Blanket
+"Testing Boi",'H',0.5000000000000001,Pony,Brown,Training Bridle,Training Blanket
+"Testing222222",'Y',1.0,Appaloosa,Gray,Sturdy Horseshoes;Training Bridle,Neck Cover;Tail Bag

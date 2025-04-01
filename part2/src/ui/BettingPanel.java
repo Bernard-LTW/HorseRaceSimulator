@@ -271,11 +271,6 @@ public class BettingPanel extends JPanel {
     }
     
     private void startRace() {
-        if (currentBetsModel.getRowCount() == 0) {
-            showError("Please place at least one bet before starting the race");
-            return;
-        }
-        
         // Calculate total bet amount
         double totalBetAmount = 0.0;
         for (int row = 0; row < currentBetsModel.getRowCount(); row++) {
@@ -290,9 +285,11 @@ public class BettingPanel extends JPanel {
             }
         }
         
-        // Update balance immediately
-        currentBalance -= totalBetAmount;
-        updateBalanceLabel();
+        // Update balance only if there are bets
+        if (totalBetAmount > 0) {
+            currentBalance -= totalBetAmount;
+            updateBalanceLabel();
+        }
         
         // Place all current bets
         for (int row = 0; row < currentBetsModel.getRowCount(); row++) {
