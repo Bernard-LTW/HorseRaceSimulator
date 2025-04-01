@@ -14,6 +14,8 @@ public class Track {
     private int length;
     private TrackShape shape;
     private TrackCondition condition;
+    private double bestTime;
+    private String bestHorse;
 
     public Track(String name, int laneCount, int length, TrackShape shape, TrackCondition condition) {
         this.name = name;
@@ -21,6 +23,8 @@ public class Track {
         this.length = length;
         this.shape = shape;
         this.condition = condition;
+        this.bestTime = 0;
+        this.bestHorse = "";
     }
 
     public String getName() {
@@ -101,5 +105,21 @@ public class Track {
             default:
                 return 1.0;
         }
+    }
+
+    public double getBestTime() {
+        return bestTime;
+    }
+
+    public void setBestTime(double bestTime) {
+        this.bestTime = bestTime;
+    }
+
+    public String getBestHorse() {
+        return bestHorse;
+    }
+
+    public void setBestHorse(String bestHorse) {
+        this.bestHorse = bestHorse;
     }
 }

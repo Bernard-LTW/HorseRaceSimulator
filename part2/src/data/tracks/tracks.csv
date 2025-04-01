@@ -1,4 +1,4 @@
 Name,Length,Shape,BestTime,BestHorse
-Oval,20,OVAL
-Figure 8,30,FIGURE_EIGHT
-test2,10,OVAL
+Oval,20,OVAL,1045,Lightning
+Figure 8,30,FIGURE_EIGHT,0.00,
+test2,10,OVAL,0.00,

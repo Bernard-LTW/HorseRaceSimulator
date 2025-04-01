@@ -228,11 +228,48 @@ public class Race {
     }
 
     /**
+     * Adjusts a horse's confidence based on their race performance
+     * - Winner gets a small confidence boost
+     * - Other finishers get a tiny boost based on position
+     * - Fallen horses get a small confidence penalty
+     * Maximum adjustment is 7% per race
+     */
+    private void adjustHorseConfidence(Horse horse, int position, boolean hasFallen) {
+        double currentConfidence = horse.getConfidence();
+        double adjustment = 0.0;
+        
+        if (hasFallen) {
+            // Small penalty for falling
+            adjustment = -0.03;
+        } else if (position == 1) {
+            // Winner gets a moderate boost
+            adjustment = 0.07;
+        } else if (position <= 3) {
+            // Top 3 finishers get a small boost
+            adjustment = 0.02;
+        } else {
+            // Other finishers get a tiny boost
+            adjustment = 0.01;
+        }
+        
+        // Apply the adjustment while keeping confidence between 0 and 1
+        double newConfidence = Math.max(0.0, Math.min(1.0, currentConfidence + adjustment));
+        horse.setConfidence(newConfidence);
+    }
+
+    /**
      * Stores the race results in the CSV file
      */
+    private Map<Horse, Double> confidenceChanges = new HashMap<>();
+
+    public Map<Horse, Double> getConfidenceChanges() {
+        return confidenceChanges;
+    }
+
     private void storeRaceResults() {
         // Create a list to store all horses in finish order
         List<Horse> allHorses = new ArrayList<>(finishOrder);
+        confidenceChanges.clear(); // Clear previous changes
         
         // Add fallen horses sorted by distance travelled
         List<Horse> fallenHorses = new ArrayList<>();
@@ -244,10 +281,11 @@ public class Race {
         Collections.sort(fallenHorses, (h1, h2) -> Double.compare(h2.getDistanceTravelled(), h1.getDistanceTravelled()));
         allHorses.addAll(fallenHorses);
 
-        // Store each horse's result
+        // Store each horse's result and adjust their confidence
         for (int i = 0; i < allHorses.size(); i++) {
             Horse horse = allHorses.get(i);
             long finishTime = finishTimes.getOrDefault(horse, -1L); // -1 for fallen horses
+            double oldConfidence = horse.getConfidence();
             
             // Store basic race result
             utils.FileIO.storeRaceResult(raceID, horse.getName(), horse.getSymbol(), 
@@ -256,13 +294,20 @@ public class Race {
             // Store detailed race statistics
             RaceStatistics.storeRaceStats(raceID, horse.getName(), horse.getConfidence(),
                 horse.getDistanceTravelled(), i + 1, finishTime, track.getName(), track.getCondition());
+                
+            // Adjust horse confidence based on performance
+            adjustHorseConfidence(horse, i + 1, horse.hasFallen());
+            
+            // Store confidence change
+            double change = horse.getConfidence() - oldConfidence;
+            confidenceChanges.put(horse, change);
         }
         
         // Update track records if we have a winner
         if (!finishOrder.isEmpty()) {
             Horse winner = finishOrder.get(0);
             long winnerTime = finishTimes.get(winner);
-            RaceStatistics.updateTrackRecords(track.getName(), track.getCondition(), winnerTime);
+            RaceStatistics.updateTrackRecords(track.getName(), track.getCondition(), winnerTime, winner.getName());
         }
     }
 

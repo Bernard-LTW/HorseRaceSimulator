@@ -129,15 +129,24 @@ public class FileIO {  // Class names should start with capital letters
             lines.add(br.readLine());
             
             while ((line = br.readLine()) != null) {
-                String[] horseDdata = parseCSVLine(line);
-                String horseName = horseDdata[0].replace("\"", "");
-                char horseSymbol = horseDdata[1].charAt(1);
+                String[] horseData = parseCSVLine(line);
+                String horseName = horseData[0].replace("\"", "");
+                char horseSymbol = horseData[1].charAt(1);
                 
                 // Check if this is the horse we want to update
                 if (horseName.equals(name) && horseSymbol == symbol) {
-                    // Format the new line with updated confidence
-                    String updatedLine = "\"" + name + "\"," + horseDdata[1] + "," + newConfidence;
-                    lines.add(updatedLine);
+                    // Preserve all existing data and only update confidence
+                    StringBuilder updatedLine = new StringBuilder();
+                    updatedLine.append("\"").append(horseName).append("\",");
+                    updatedLine.append("'").append(horseSymbol).append("',");
+                    updatedLine.append(newConfidence);
+                    
+                    // Add remaining fields if they exist
+                    for (int i = 3; i < horseData.length; i++) {
+                        updatedLine.append(",").append(horseData[i]);
+                    }
+                    
+                    lines.add(updatedLine.toString());
                     horseFound = true;
                 } else {
                     lines.add(line);
@@ -252,18 +261,28 @@ public class FileIO {  // Class names should start with capital letters
         List<Track> tracks = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(TRACKS_CSV_FILE))) {
             String line;
-            boolean firstLine = true;
+            reader.readLine(); // Skip header
+            
             while ((line = reader.readLine()) != null) {
-                if (firstLine) {  // Skip header
-                    firstLine = false;
-                    continue;
-                }
-                String[] data = line.split(",");
-                if (data.length == 3) {
-                    String name = data[0];
-                    int length = Integer.parseInt(data[1]);
-                    Track.TrackShape shape = Track.TrackShape.valueOf(data[2].toUpperCase());
-                    tracks.add(new Track(name, 3, length, shape, Track.TrackCondition.DRY));
+                String[] parts = line.split(",");
+                if (parts.length >= 3) {
+                    Track track = new Track(
+                        parts[0],  // name
+                        3,         // default lane count
+                        Integer.parseInt(parts[1]),  // length
+                        Track.TrackShape.valueOf(parts[2]),  // shape
+                        Track.TrackCondition.DRY  // default condition
+                    );
+                    
+                    // Set best time and horse if available
+                    if (parts.length >= 4 && !parts[3].isEmpty()) {
+                        track.setBestTime(Double.parseDouble(parts[3]));
+                    }
+                    if (parts.length >= 5 && !parts[4].isEmpty()) {
+                        track.setBestHorse(parts[4]);
+                    }
+                    
+                    tracks.add(track);
                 }
             }
         } catch (IOException e) {
@@ -296,14 +315,16 @@ public class FileIO {  // Class names should start with capital letters
     public static boolean saveTracks(List<Track> tracks) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(TRACKS_CSV_FILE))) {
             // Write header
-            writer.write("Name,Length,Shape");
+            writer.write("Name,Length,Shape,BestTime,BestHorse");
             writer.newLine();
             
             for (Track track : tracks) {
-                writer.write(String.format("%s,%d,%s",
+                writer.write(String.format("%s,%d,%s,%.0f,%s",
                     track.getName(),
                     track.getLength(),
-                    track.getShape().name()));
+                    track.getShape().name(),
+                    track.getBestTime(),
+                    track.getBestHorse()));
                 writer.newLine();
             }
             return true;

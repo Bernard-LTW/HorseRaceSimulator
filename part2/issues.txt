@@ -1,4 +1,4 @@
 - Default value of track should be dry
 - Betting summary prints twice????
 - Input validate the char for symbol on add horse?
-- 
+- you need to write best horse and best time to the csv of tracks

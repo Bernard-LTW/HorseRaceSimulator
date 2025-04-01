@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
+import javax.swing.table.DefaultTableModel;
 
 public class StatisticsPanel extends JPanel {
     private JTabbedPane tabbedPane;
@@ -14,7 +15,6 @@ public class StatisticsPanel extends JPanel {
     private JPanel trackRecordsPanel;
     private JPanel bettingStatsPanel;
     private JComboBox<String> horseSelector;
-    private JComboBox<String> trackSelector;
     
     public StatisticsPanel() {
         setLayout(new BorderLayout(10, 10));
@@ -108,33 +108,32 @@ public class StatisticsPanel extends JPanel {
         panel.setBackground(Color.WHITE);
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         
-        // Track selector
-        JPanel selectorPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        selectorPanel.setBackground(Color.WHITE);
+        // Create table model for track records
+        String[] columns = {"Track Name", "Best Time (ms)", "Best Horse"};
+        DefaultTableModel model = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
         
-        JLabel trackLabel = new JLabel("Select Track: ");
-        trackLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        trackSelector = new JComboBox<>();
-        trackSelector.setFont(new Font("Arial", Font.PLAIN, 14));
-        trackSelector.addActionListener(e -> updateTrackRecords());
+        JTable recordsTable = new JTable(model);
+        recordsTable.setFont(new Font("Arial", Font.PLAIN, 14));
+        recordsTable.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
+        recordsTable.setRowHeight(25);
+        recordsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         
-        selectorPanel.add(trackLabel);
-        selectorPanel.add(trackSelector);
+        // Set column widths
+        recordsTable.getColumnModel().getColumn(0).setPreferredWidth(150);  // Track Name
+        recordsTable.getColumnModel().getColumn(1).setPreferredWidth(120);  // Best Time
+        recordsTable.getColumnModel().getColumn(2).setPreferredWidth(150);  // Best Horse
         
-        // Records display
-        JPanel recordsPanel = new JPanel(new GridLayout(0, 2, 20, 10));
-        recordsPanel.setBackground(Color.WHITE);
+        // Add scroll pane
+        JScrollPane scrollPane = new JScrollPane(recordsTable);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollPane.getViewport().setBackground(Color.WHITE);
         
-        // Add condition labels
-        for (Track.TrackCondition condition : Track.TrackCondition.values()) {
-            JLabel conditionLabel = new JLabel(condition.name() + ":");
-            conditionLabel.setFont(new Font("Arial", Font.BOLD, 14));
-            recordsPanel.add(conditionLabel);
-            recordsPanel.add(new JLabel("--"));
-        }
-        
-        panel.add(selectorPanel, BorderLayout.NORTH);
-        panel.add(new JScrollPane(recordsPanel), BorderLayout.CENTER);
+        panel.add(scrollPane, BorderLayout.CENTER);
         
         return panel;
     }
@@ -166,13 +165,6 @@ public class StatisticsPanel extends JPanel {
         horseSelector.removeAllItems();
         for (Horse horse : horses) {
             horseSelector.addItem(horse.getName());
-        }
-        
-        // Load tracks
-        List<Track> tracks = utils.FileIO.loadTracks();
-        trackSelector.removeAllItems();
-        for (Track track : tracks) {
-            trackSelector.addItem(track.getName());
         }
         
         // Load track records
@@ -225,23 +217,21 @@ public class StatisticsPanel extends JPanel {
     }
     
     private void updateTrackRecords() {
-        String selectedTrack = (String) trackSelector.getSelectedItem();
-        if (selectedTrack == null) return;
+        // Get the table from the track records panel
+        JTable recordsTable = (JTable) ((JScrollPane) trackRecordsPanel.getComponent(0)).getViewport().getView();
+        DefaultTableModel model = (DefaultTableModel) recordsTable.getModel();
         
-        Map<Track.TrackCondition, Double> records = RaceStatistics.getTrackRecords(selectedTrack);
+        // Clear existing rows
+        model.setRowCount(0);
         
-        // Update records display
-        JPanel recordsPanel = (JPanel) ((JScrollPane) trackRecordsPanel.getComponent(1)).getViewport().getView();
-        Component[] components = recordsPanel.getComponents();
-        
-        for (int i = 0; i < components.length; i += 2) {
-            JLabel valueLabel = (JLabel) components[i + 1];
-            String label = ((JLabel) components[i]).getText();
-            Track.TrackCondition condition = Track.TrackCondition.valueOf(
-                label.substring(0, label.length() - 1));
-            
-            Double bestTime = records.get(condition);
-            valueLabel.setText(bestTime != null ? String.format("%.2f seconds", bestTime) : "--");
+        // Load tracks and add their records to the table
+        List<Track> tracks = utils.FileIO.loadTracks();
+        for (Track track : tracks) {
+            model.addRow(new Object[]{
+                track.getName(),
+                String.format("%d", (long)track.getBestTime()),
+                track.getBestHorse().isEmpty() ? "--" : track.getBestHorse()
+            });
         }
     }
     
@@ -310,6 +300,6 @@ public class StatisticsPanel extends JPanel {
     
     private void goBack() {
         CardLayout cardLayout = (CardLayout) getParent().getLayout();
-        cardLayout.show(getParent(), "MAIN_MENU");
+        cardLayout.show(getParent(), "MAIN");
     }
 } 

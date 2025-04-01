@@ -10,6 +10,7 @@ import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.List;
+import java.util.Map;
 
 public class RaceSimulationPanel extends JPanel {
     private JTextArea raceDisplay;
@@ -121,7 +122,7 @@ public class RaceSimulationPanel extends JPanel {
                 // Start the race
                 race.startRace();
                 
-                // After race is complete, update the display one final time
+                // After race is complete, update the display and show summary
                 SwingUtilities.invokeLater(() -> {
                     raceDisplay.setText(outputStream.toString());
                     raceDisplay.setCaretPosition(raceDisplay.getDocument().getLength());
@@ -178,9 +179,32 @@ public class RaceSimulationPanel extends JPanel {
         double totalWinnings = 0.0;
         StringBuilder summary = new StringBuilder();
         summary.append("<html><body style='width: 400px'>");
-        summary.append("<h2>Betting Summary</h2>");
+        summary.append("<h2>Race Summary</h2>");
         summary.append("<p>Race ID: ").append(race.getRaceID()).append("</p>");
         summary.append("<p>Winner: ").append(race.getFinishOrder().get(0).getName()).append("</p>");
+        
+        // Add confidence changes section
+        summary.append("<br><h3>Confidence Changes:</h3>");
+        summary.append("<table style='width:100%'>");
+        summary.append("<tr><th>Horse</th><th>Change</th></tr>");
+        
+        Map<Horse, Double> confidenceChanges = race.getConfidenceChanges();
+        for (Map.Entry<Horse, Double> entry : confidenceChanges.entrySet()) {
+            Horse horse = entry.getKey();
+            double change = entry.getValue();
+            String changeStr = String.format("%.2f", change * 100);
+            if (change > 0) {
+                changeStr = "+" + changeStr;
+            }
+            
+            summary.append("<tr>");
+            summary.append("<td>").append(horse.getName()).append("</td>");
+            summary.append("<td>").append(changeStr).append("%</td>");
+            summary.append("</tr>");
+        }
+        summary.append("</table>");
+        
+        // Add betting summary section
         summary.append("<br><h3>Your Bets:</h3>");
         summary.append("<table style='width:100%'>");
         summary.append("<tr><th>Horse</th><th>Amount</th><th>Result</th><th>Winnings</th></tr>");
@@ -206,7 +230,7 @@ public class RaceSimulationPanel extends JPanel {
         
         JOptionPane.showMessageDialog(this,
             summary.toString(),
-            "Race Complete - Betting Summary",
+            "Race Complete - Summary",
             JOptionPane.INFORMATION_MESSAGE);
     }
 

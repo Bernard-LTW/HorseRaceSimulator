@@ -22,8 +22,7 @@ public class MainPanel extends JPanel {
         // Create and style the buttons
         JButton transactionsButton = createMenuButton("Transactions");
         JButton raceSetupButton = createMenuButton("New Race");
-        JButton bettingStatsButton = createMenuButton("Betting Stats");
-        JButton horseStatsButton = createMenuButton("Horse Stats");
+        JButton statisticsButton = createMenuButton("Statistics");
         JButton horseCustomizerButton = createMenuButton("Horse Customizer");
         JButton trackCustomizerButton = createMenuButton("Track Customizer");
 
@@ -38,12 +37,7 @@ public class MainPanel extends JPanel {
             cardLayout.show(getParent(), "RACE_SETUP");
         });
 
-        bettingStatsButton.addActionListener(e -> {
-            CardLayout cardLayout = (CardLayout) getParent().getLayout();
-            cardLayout.show(getParent(), "STATISTICS");
-        });
-
-        horseStatsButton.addActionListener(e -> {
+        statisticsButton.addActionListener(e -> {
             CardLayout cardLayout = (CardLayout) getParent().getLayout();
             cardLayout.show(getParent(), "STATISTICS");
         });
@@ -61,8 +55,7 @@ public class MainPanel extends JPanel {
         // Add buttons to the grid
         buttonPanel.add(transactionsButton);
         buttonPanel.add(raceSetupButton);
-        buttonPanel.add(bettingStatsButton);
-        buttonPanel.add(horseStatsButton);
+        buttonPanel.add(statisticsButton);
         buttonPanel.add(horseCustomizerButton);
         buttonPanel.add(trackCustomizerButton);
 

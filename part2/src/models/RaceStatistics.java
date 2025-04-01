@@ -1,5 +1,7 @@
 package models;
 
+import utils.FileIO;
+
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -27,13 +29,26 @@ public class RaceStatistics {
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
                 if (parts[0].equals("RECORD")) {  // Only process track records
-                    String trackName = parts[6];
-                    Track.TrackCondition condition = Track.TrackCondition.valueOf(parts[7]);
-                    long raceDuration = Long.parseLong(parts[5]);
-                    double timeInSeconds = raceDuration / 1000.0;
-                    
-                    trackRecords.computeIfAbsent(trackName, k -> new HashMap<>());
-                    trackRecords.get(trackName).put(condition, timeInSeconds);
+                    try {
+                        String trackName = parts[1];  // Track name is in position 1
+                        String conditionStr = parts[2].trim().toUpperCase();  // Condition is in position 2
+                        
+                        // Skip invalid records
+                        if (!conditionStr.equals("MUDDY") && !conditionStr.equals("DRY") && !conditionStr.equals("ICY")) {
+                            System.err.println("Invalid track condition: " + conditionStr + " in record: " + line);
+                            continue;
+                        }
+                        
+                        Track.TrackCondition condition = Track.TrackCondition.valueOf(conditionStr);
+                        long raceDuration = Long.parseLong(parts[6]);  // Duration is in position 6
+                        double timeInSeconds = raceDuration / 1000.0;
+                        
+                        trackRecords.computeIfAbsent(trackName, k -> new HashMap<>());
+                        trackRecords.get(trackName).put(condition, timeInSeconds);
+                    } catch (IllegalArgumentException e) {
+                        System.err.println("Error processing track record: " + line);
+                        System.err.println("Error: " + e.getMessage());
+                    }
                 }
             }
         } catch (IOException e) {
@@ -56,12 +71,12 @@ public class RaceStatistics {
                  PrintWriter out = new PrintWriter(bw)) {
                 
                 if (!fileExists) {
-                    out.println("raceID,name,symbol,confidence,distanceTravelled,position,time");
+                    out.println("raceID,name,symbol,confidence,distanceTravelled,position,time,trackName,trackCondition");
                 }
                 
-                out.printf("%s,%s,%c,%.2f,%d,%d,%d%n",
+                out.printf("%s,%s,%c,%.2f,%d,%d,%d,%s,%s%n",
                     raceID, horseName, horseName.charAt(0), confidence, distanceTravelled, position, 
-                    raceDuration);
+                    raceDuration, trackName, trackCondition);
             }
         } catch (IOException e) {
             System.err.println("Error storing race statistics: " + e.getMessage());
@@ -72,15 +87,31 @@ public class RaceStatistics {
      * Updates track records if the current race time is better
      */
     public static void updateTrackRecords(String trackName, Track.TrackCondition condition, 
-            long raceDuration) {
-        double currentTime = raceDuration / 1000.0; // Convert to seconds
+            long raceDuration, String horseName) {
+        // Store time in milliseconds
+        double currentTime = raceDuration;
         
-        Map<Track.TrackCondition, Double> records = getTrackRecords(trackName);
-        Double bestTime = records.get(condition);
+        // Load current track records
+        List<Track> tracks = FileIO.loadTracks();
+        Track targetTrack = null;
         
-        if (bestTime == null || currentTime < bestTime) {
-            // Store the new record in the races.csv file
-            storeRaceStats("RECORD", "TRACK_RECORD", 1.0, 0, 1, raceDuration, trackName, condition);
+        // Find the target track
+        for (Track track : tracks) {
+            if (track.getName().equals(trackName)) {
+                targetTrack = track;
+                break;
+            }
+        }
+        
+        if (targetTrack != null) {
+            // Update best time and horse if current time is better
+            if (targetTrack.getBestTime() == 0 || currentTime < targetTrack.getBestTime()) {
+                targetTrack.setBestTime(currentTime);
+                targetTrack.setBestHorse(horseName);
+                
+                // Save updated track records
+                FileIO.saveTracks(tracks);
+            }
         }
     }
     
