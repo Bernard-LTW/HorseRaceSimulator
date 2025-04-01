@@ -197,7 +197,7 @@ public class BettingPanel extends JPanel {
             for (int row : selectedRows) {
                 String horseName = (String) selectedHorsesModel.getValueAt(row, 0);
                 String symbol = (String) selectedHorsesModel.getValueAt(row, 1);
-                String oddsStr = (String) selectedHorsesModel.getValueAt(row, 2);
+                // String oddsStr = (String) selectedHorsesModel.getValueAt(row, 2);
                 
                 // Find the horse object
                 Horse horse = null;
