@@ -248,8 +248,21 @@ public class Race {
         for (int i = 0; i < allHorses.size(); i++) {
             Horse horse = allHorses.get(i);
             long finishTime = finishTimes.getOrDefault(horse, -1L); // -1 for fallen horses
+            
+            // Store basic race result
             utils.FileIO.storeRaceResult(raceID, horse.getName(), horse.getSymbol(), 
                 horse.getConfidence(), horse.getDistanceTravelled(), i + 1, finishTime);
+            
+            // Store detailed race statistics
+            RaceStatistics.storeRaceStats(raceID, horse.getName(), horse.getConfidence(),
+                horse.getDistanceTravelled(), i + 1, finishTime, track.getName(), track.getCondition());
+        }
+        
+        // Update track records if we have a winner
+        if (!finishOrder.isEmpty()) {
+            Horse winner = finishOrder.get(0);
+            long winnerTime = finishTimes.get(winner);
+            RaceStatistics.updateTrackRecords(track.getName(), track.getCondition(), winnerTime);
         }
     }
 

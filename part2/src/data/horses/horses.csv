@@ -2,7 +2,7 @@ name,symbol,confidence,breed,coatColor,equipment,accessories,racesRun,racesFinis
 "Thunder",'A',0.60,Thoroughbred,Black,Light Saddle,Racing Blanket,0,0,0
 "Lightning",'B',0.80,Arabian,Bay,Racing Horseshoes,Training Blanket,0,0,0
 "Tornado",'C',0.70,Quarter Horse,Chestnut,Racing Bridle,Leg Wraps,0,0,0
-"Blizzard",'D',0.90,Friesian,White,Sturdy Horseshoes,Neck Cover,0,0,0
+"Blizzard",'D',0.90,Friesian,White,Sturdy Horseshoes,Neck Cover;Tail Bag,0,0,0
 "Storm",'E',0.85,Morgan,Palomino,Training Bridle,Tail Bag;Leg Wraps,0,0,0
 "Whirlwind",'F',0.75,Appaloosa,Pinto,Light Saddle,Saddle Pad,0,0,0
 "Tempest",'G',0.80,Clydesdale,Gray,Heavy Saddle,Racing Blanket,0,0,0

@@ -1,3 +1,4 @@
-- show the confidence level of the horse on the select horse(new race) screen
+- Default value of track should be dry
+- Betting summary prints twice????
 - Input validate the char for symbol on add horse?
 - 

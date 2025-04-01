@@ -39,11 +39,13 @@ public class MainPanel extends JPanel {
         });
 
         bettingStatsButton.addActionListener(e -> {
-            // TODO: Implement betting stats functionality
+            CardLayout cardLayout = (CardLayout) getParent().getLayout();
+            cardLayout.show(getParent(), "STATISTICS");
         });
 
         horseStatsButton.addActionListener(e -> {
-            // TODO: Implement horse stats functionality
+            CardLayout cardLayout = (CardLayout) getParent().getLayout();
+            cardLayout.show(getParent(), "STATISTICS");
         });
 
         horseCustomizerButton.addActionListener(e -> {
