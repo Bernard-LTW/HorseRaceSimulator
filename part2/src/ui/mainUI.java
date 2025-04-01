@@ -13,10 +13,8 @@ public class MainUI extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setMinimumSize(new Dimension(1200, 600));
         
-        // Create card layout for switching between panels
         JPanel mainContainer = new JPanel(new CardLayout());
         
-        // Create a single BetManager instance to share between panels
         BetManager betManager = new BetManager();
         
         // Create panels

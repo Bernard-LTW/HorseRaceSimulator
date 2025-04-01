@@ -10,11 +10,13 @@ import utils.FileIO;
 
 public class NewRacePanel extends JPanel {
     private JCheckBox[] horseCheckboxes;
+    private JLabel[] confidenceLabels;
     private JComboBox<String> trackSelector;
     private JComboBox<String> weatherSelector;
     private Race currentRace;
     private JPanel horsesPanel;
     private JPanel selectorsPanel;
+    private Horse[] horses;  // Store horses for easy access
 
     public NewRacePanel() {
         setLayout(new BorderLayout(10, 20));
@@ -123,22 +125,58 @@ public class NewRacePanel extends JPanel {
         selectorsPanel.add(weatherSelector);
 
         // Load horses from CSV
-        Horse[] horses = FileIO.ingestHorses();
+        horses = FileIO.ingestHorses();
         horseCheckboxes = new JCheckBox[horses.length];
+        confidenceLabels = new JLabel[horses.length];
 
+        // Create a panel for each horse with checkbox and confidence label
         for (int i = 0; i < horses.length; i++) {
+            JPanel horsePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            horsePanel.setBackground(Color.WHITE);
+            
             horseCheckboxes[i] = new JCheckBox(horses[i].getName());
             horseCheckboxes[i].setFont(new Font("Arial", Font.PLAIN, 14));
-            horseCheckboxes[i].setBackground(Color.WHITE);
-            horsesPanel.add(horseCheckboxes[i]);
+            
+            confidenceLabels[i] = new JLabel(String.format("Confidence: %.2f", horses[i].getConfidence()));
+            confidenceLabels[i].setFont(new Font("Arial", Font.PLAIN, 14));
+            confidenceLabels[i].setForeground(new Color(70, 130, 180));
+            
+            horsePanel.add(horseCheckboxes[i]);
+            horsePanel.add(confidenceLabels[i]);
+            horsesPanel.add(horsePanel);
             horsesPanel.add(Box.createRigidArea(new Dimension(0, 5)));
         }
+
+        // Add weather condition change listener
+        weatherSelector.addActionListener(e -> updateHorseConfidences());
 
         // Revalidate and repaint
         selectorsPanel.revalidate();
         selectorsPanel.repaint();
         horsesPanel.revalidate();
         horsesPanel.repaint();
+    }
+
+    private void updateHorseConfidences() {
+        if (horses == null || confidenceLabels == null) return;
+
+        String selectedWeather = (String) weatherSelector.getSelectedItem();
+        Track.TrackCondition condition = Track.TrackCondition.valueOf(selectedWeather.toUpperCase());
+        
+        // Create a temporary track to get modifiers
+        Track tempTrack = new Track("temp", 1, 100, Track.TrackShape.OVAL, condition);
+        double speedModifier = tempTrack.getSpeedModifier();
+        double fallRiskModifier = tempTrack.getFallRiskModifier();
+
+        for (int i = 0; i < horses.length; i++) {
+            double baseConfidence = horses[i].getConfidence();
+            // Adjust confidence based on weather conditions
+            double adjustedConfidence = (baseConfidence * speedModifier) - fallRiskModifier;
+            // Ensure confidence stays within bounds
+            adjustedConfidence = Math.max(0.0, Math.min(1.0, adjustedConfidence));
+            
+            confidenceLabels[i].setText(String.format("Confidence: %.2f", adjustedConfidence));
+        }
     }
 
     private JButton createStyledButton(String text) {
