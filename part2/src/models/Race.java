@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.Collections;
 import java.util.ArrayList;
+import java.util.UUID;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * A three-horse race, each horse running in its own lane
@@ -13,9 +16,12 @@ import java.util.ArrayList;
  * @version 1.0
  */
 public class Race {
+    private String raceID = UUID.randomUUID().toString();
     private Track track;
     private Horse[] lanes;
     private List<Horse> finishOrder;
+    private long startTime;
+    private Map<Horse, Long> finishTimes;
     final static double fallProbability = 0.01;
 
     /**
@@ -29,6 +35,11 @@ public class Race {
         this.track = track;
         this.lanes = new Horse[track.getLaneCount()];
         this.finishOrder = new ArrayList<>();
+        this.finishTimes = new HashMap<>();
+    }
+
+    public String getRaceID(){
+        return this.raceID;
     }
     
     /**
@@ -61,6 +72,8 @@ public class Race {
         
         boolean raceComplete = false;
         finishOrder.clear();
+        finishTimes.clear();
+        startTime = System.currentTimeMillis();
         
         for (Horse horse : lanes) {
             horse.goBackToStart();
@@ -75,6 +88,7 @@ public class Race {
                     moveHorse(horse);
                     if (raceWonBy(horse) && !finishOrder.contains(horse)) {
                         finishOrder.add(horse);
+                        finishTimes.put(horse, System.currentTimeMillis() - startTime);
                     }
                 }
             }
@@ -95,6 +109,8 @@ public class Race {
             }
         }
         
+        System.out.println("Race ID:" + this.getRaceID());
+
         System.out.println("\n=== RACE RESULTS ===");
         
         for (int i = 0; i < finishOrder.size(); i++) {
@@ -119,6 +135,9 @@ public class Race {
         } else {
             System.out.println("\nNo winners - all horses fell!");
         }
+
+        // Store race results after the race ends
+        storeRaceResults();
     }
     
     /**
@@ -205,6 +224,32 @@ public class Race {
         while (i < times) {
             System.out.print(aChar);
             i = i + 1;
+        }
+    }
+
+    /**
+     * Stores the race results in the CSV file
+     */
+    private void storeRaceResults() {
+        // Create a list to store all horses in finish order
+        List<Horse> allHorses = new ArrayList<>(finishOrder);
+        
+        // Add fallen horses sorted by distance travelled
+        List<Horse> fallenHorses = new ArrayList<>();
+        for (Horse horse : lanes) {
+            if (horse.hasFallen()) {
+                fallenHorses.add(horse);
+            }
+        }
+        Collections.sort(fallenHorses, (h1, h2) -> Double.compare(h2.getDistanceTravelled(), h1.getDistanceTravelled()));
+        allHorses.addAll(fallenHorses);
+
+        // Store each horse's result
+        for (int i = 0; i < allHorses.size(); i++) {
+            Horse horse = allHorses.get(i);
+            long finishTime = finishTimes.getOrDefault(horse, -1L); // -1 for fallen horses
+            utils.FileIO.storeRaceResult(raceID, horse.getName(), horse.getSymbol(), 
+                horse.getConfidence(), horse.getDistanceTravelled(), i + 1, finishTime);
         }
     }
 }

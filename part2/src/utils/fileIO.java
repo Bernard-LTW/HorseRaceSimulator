@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import models.Transaction;
 import java.util.Arrays;
+import java.io.File;
+import java.io.PrintWriter;
 
 /**
  * Utility class for file input/output operations
@@ -20,12 +22,14 @@ import java.util.Arrays;
 public class FileIO {  // Class names should start with capital letters
     // File paths
     private static final String HORSE_CSV_FILE = "part2/src/data/horses/horses.csv";
-    private static final String TRANSACTION_CSV_FILE = "part2/src/data/transaction.csv";
+    private static final String TRANSACTION_CSV_FILE = "part2/src/data/bets/transaction.csv";
     private static final String TRACKS_CSV_FILE = "part2/src/data/tracks/tracks.csv";
     private static final String BREEDS_CSV_FILE = "part2/src/data/horses/breeds.csv";
     private static final String COAT_COLORS_CSV_FILE = "part2/src/data/horses/coat_colors.csv";
     private static final String EQUIPMENT_CSV_FILE = "part2/src/data/horses/equipment.csv";
     private static final String ACCESSORIES_CSV_FILE = "part2/src/data/horses/accessories.csv";
+    private static final String RACES_CSV_FILE = "part2/src/data/races.csv";
+
 
     /**
      * Reads horse data from CSV file and returns array of Horse objects
@@ -418,5 +422,41 @@ public class FileIO {  // Class names should start with capital letters
             .filter(item -> item.getName().equals(name))
             .findFirst()
             .orElse(null);
+    }
+
+    /**
+     * Stores a race result in the races.csv file
+     * @param raceID The unique identifier for the race
+     * @param horseName The name of the horse
+     * @param symbol The symbol representing the horse
+     * @param confidence The horse's confidence value
+     * @param distanceTravelled The distance the horse travelled
+     * @param position The horse's finishing position
+     * @param raceDuration The duration of the race in milliseconds
+     */
+    public static void storeRaceResult(String raceID, String horseName, char symbol, 
+            double confidence, int distanceTravelled, int position, long raceDuration) {
+        try {
+            // Create the races.csv file if it doesn't exist
+            File racesFile = new File(RACES_CSV_FILE);
+            boolean fileExists = racesFile.exists();
+            
+            // Append the race result to the file
+            try (FileWriter fw = new FileWriter(racesFile, true);
+                 BufferedWriter bw = new BufferedWriter(fw);
+                 PrintWriter out = new PrintWriter(bw)) {
+                
+                // Write header if file is new
+                if (!fileExists) {
+                    out.println("raceID,name,symbol,confidence,distanceTravelled,position,raceDuration");
+                }
+                
+                // Write the race result
+                out.printf("%s,%s,%c,%.2f,%d,%d,%d%n", 
+                    raceID, horseName, symbol, confidence, distanceTravelled, position, raceDuration);
+            }
+        } catch (IOException e) {
+            System.err.println("Error storing race result: " + e.getMessage());
+        }
     }
 }
