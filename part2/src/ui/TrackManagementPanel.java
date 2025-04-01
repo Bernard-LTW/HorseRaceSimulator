@@ -43,34 +43,6 @@ public class TrackManagementPanel extends JPanel {
         JScrollPane scrollPane = new JScrollPane(trackTable);
         contentPanel.add(scrollPane, BorderLayout.CENTER);
         
-        // Template Buttons Panel
-        JPanel templatePanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
-        templatePanel.setBackground(Color.WHITE);
-        templatePanel.setBorder(BorderFactory.createTitledBorder(
-            BorderFactory.createLineBorder(new Color(70, 130, 180), 2),
-            "Quick Add Templates",
-            javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
-            javax.swing.border.TitledBorder.DEFAULT_POSITION,
-            new Font("Arial", Font.BOLD, 14),
-            new Color(70, 130, 180)));
-
-        JButton shortTrackBtn = createStyledButton("Short Track (100m)");
-        JButton mediumTrackBtn = createStyledButton("Medium Track (400m)");
-        JButton longTrackBtn = createStyledButton("Long Track (1000m)");
-        JButton figureEightBtn = createStyledButton("Figure 8 Track (600m)");
-
-        shortTrackBtn.addActionListener(e -> addTemplateTrack("Short Track", 100, Track.TrackShape.OVAL));
-        mediumTrackBtn.addActionListener(e -> addTemplateTrack("Medium Track", 400, Track.TrackShape.OVAL));
-        longTrackBtn.addActionListener(e -> addTemplateTrack("Long Track", 1000, Track.TrackShape.OVAL));
-        figureEightBtn.addActionListener(e -> addTemplateTrack("Figure 8", 600, Track.TrackShape.FIGURE_EIGHT));
-
-        templatePanel.add(shortTrackBtn);
-        templatePanel.add(mediumTrackBtn);
-        templatePanel.add(longTrackBtn);
-        templatePanel.add(figureEightBtn);
-
-        contentPanel.add(templatePanel, BorderLayout.NORTH);
-        
         // Buttons panel
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         buttonsPanel.setBackground(Color.WHITE);
@@ -196,12 +168,5 @@ public class TrackManagementPanel extends JPanel {
     private void goBack() {
         CardLayout cardLayout = (CardLayout) getParent().getLayout();
         cardLayout.show(getParent(), "MAIN");
-    }
-
-    private void addTemplateTrack(String name, int length, Track.TrackShape shape) {
-        Track newTrack = new Track(name, 3, length, shape, Track.TrackCondition.DRY);  // Default values
-        tracks.add(newTrack);
-        FileIO.saveTracks(tracks);
-        updateTable();
     }
 } 

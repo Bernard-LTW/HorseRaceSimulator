@@ -66,12 +66,15 @@ public class NewRacePanel extends JPanel {
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         buttonsPanel.setBackground(Color.WHITE);
 
+        JButton selectAllButton = createStyledButton("Select All Horses");
         JButton startRaceButton = createStyledButton("Start Race");
         JButton backButton = createStyledButton("Back");
 
+        selectAllButton.addActionListener(e -> selectAllHorses());
         startRaceButton.addActionListener(e -> startRace());
         backButton.addActionListener(e -> goBack());
 
+        buttonsPanel.add(selectAllButton);
         buttonsPanel.add(startRaceButton);
         buttonsPanel.add(backButton);
 
@@ -305,5 +308,13 @@ public class NewRacePanel extends JPanel {
     private void goBack() {
         CardLayout cardLayout = (CardLayout) getParent().getLayout();
         cardLayout.show(getParent(), "MAIN");
+    }
+
+    private void selectAllHorses() {
+        if (horseCheckboxes != null) {
+            for (JCheckBox checkbox : horseCheckboxes) {
+                checkbox.setSelected(true);
+            }
+        }
     }
 }
