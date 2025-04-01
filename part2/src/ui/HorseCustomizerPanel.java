@@ -109,18 +109,18 @@ public class HorseCustomizerPanel extends JPanel {
         buttonPanel.setBackground(Color.WHITE);
 
         createHorseBtn = createStyledButton("Create New Horse");
-        editHorseBtn = createStyledButton("Edit Selected Horse");
+        // editHorseBtn = createStyledButton("Edit Selected Horse");
         customizeEquipmentBtn = createStyledButton("Customize Equipment");
         backButton = createStyledButton("Back");
 
         buttonPanel.add(createHorseBtn);
-        buttonPanel.add(editHorseBtn);
+        // buttonPanel.add(editHorseBtn);
         buttonPanel.add(customizeEquipmentBtn);
         buttonPanel.add(backButton);
 
         // Add action listeners
         createHorseBtn.addActionListener(e -> showCreateHorseDialog());
-        editHorseBtn.addActionListener(e -> showEditHorseDialog());
+        // editHorseBtn.addActionListener(e -> showEditHorseDialog());
         customizeEquipmentBtn.addActionListener(e -> showEquipmentCustomizer());
         backButton.addActionListener(e -> goBack());
 
