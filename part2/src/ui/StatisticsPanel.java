@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
+import utils.HorseComparator;
 
 public class StatisticsPanel extends JPanel {
     private JTabbedPane tabbedPane;
@@ -15,6 +16,7 @@ public class StatisticsPanel extends JPanel {
     private JPanel trackRecordsPanel;
     private JPanel bettingStatsPanel;
     private JComboBox<String> horseSelector;
+    private JButton compareHorsesButton;
     
     public StatisticsPanel() {
         setLayout(new BorderLayout(10, 10));
@@ -48,12 +50,17 @@ public class StatisticsPanel extends JPanel {
         
         add(tabbedPane, BorderLayout.CENTER);
         
-        // Back button
+        // Button panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         buttonPanel.setBackground(Color.WHITE);
         
+        compareHorsesButton = createStyledButton("Compare Horses");
+        compareHorsesButton.addActionListener(e -> showHorseComparisonDialog());
+        
         JButton backButton = createStyledButton("Back");
         backButton.addActionListener(e -> goBack());
+        
+        buttonPanel.add(compareHorsesButton);
         buttonPanel.add(backButton);
         
         add(buttonPanel, BorderLayout.SOUTH);
@@ -271,30 +278,152 @@ public class StatisticsPanel extends JPanel {
         }
     }
     
-    private JButton createStyledButton(String text) {
-        JButton button = new JButton(text);
-        button.setFont(new Font("Arial", Font.BOLD, 14));
-        button.setPreferredSize(new Dimension(150, 35));
-        button.setBackground(new Color(41, 128, 185));
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setBorderPainted(true);
-        button.setBorder(BorderFactory.createLineBorder(new Color(52, 152, 219), 2));
-        button.setOpaque(true);
-        button.setContentAreaFilled(true);
+    private void showHorseComparisonDialog() {
+        Horse[] horses = utils.FileIO.ingestHorses();
+        if (horses.length < 2) {
+            JOptionPane.showMessageDialog(this,
+                "There must be at least two horses to compare",
+                "Not Enough Horses",
+                JOptionPane.WARNING_MESSAGE);
+            return;
+        }
         
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(new Color(52, 152, 219));
-                button.setBorder(BorderFactory.createLineBorder(new Color(133, 193, 233), 2));
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), 
+            "Compare Horses", true);
+        dialog.setLayout(new BorderLayout(10, 10));
+        dialog.setBackground(Color.WHITE);
+        dialog.setSize(500, 300);
+        
+        // Create horse selectors
+        JPanel selectorsPanel = new JPanel(new GridLayout(2, 2, 10, 10));
+        selectorsPanel.setBackground(Color.WHITE);
+        selectorsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        
+        DefaultComboBoxModel<String> horse1Model = new DefaultComboBoxModel<>();
+        DefaultComboBoxModel<String> horse2Model = new DefaultComboBoxModel<>();
+        
+        JComboBox<String> horse1Selector = new JComboBox<>(horse1Model);
+        JComboBox<String> horse2Selector = new JComboBox<>(horse2Model);
+        
+        // Add items to first selector
+        for (Horse horse : horses) {
+            horse1Model.addElement(horse.getName());
+        }
+        
+        // Add items to second selector (excluding the first selected horse)
+        updateHorse2Selector(horse2Model, horses, (String) horse1Selector.getSelectedItem());
+        
+        // Add listener to update second selector when first selection changes
+        horse1Selector.addActionListener(e -> {
+            String selected = (String) horse1Selector.getSelectedItem();
+            updateHorse2Selector(horse2Model, horses, selected);
+        });
+        
+        selectorsPanel.add(new JLabel("First Horse:"));
+        selectorsPanel.add(horse1Selector);
+        selectorsPanel.add(new JLabel("Second Horse:"));
+        selectorsPanel.add(horse2Selector);
+        
+        // Create button panel
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel.setBackground(Color.WHITE);
+        JButton compareBtn = createStyledButton("Compare");
+        JButton cancelBtn = createStyledButton("Cancel");
+        
+        compareBtn.addActionListener(e -> {
+            String horse1Name = (String) horse1Selector.getSelectedItem();
+            String horse2Name = (String) horse2Selector.getSelectedItem();
+            
+            Horse horse1 = null;
+            Horse horse2 = null;
+            
+            for (Horse horse : horses) {
+                if (horse.getName().equals(horse1Name)) horse1 = horse;
+                if (horse.getName().equals(horse2Name)) horse2 = horse;
             }
             
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(new Color(41, 128, 185));
-                button.setBorder(BorderFactory.createLineBorder(new Color(52, 152, 219), 2));
+            if (horse1 != null && horse2 != null) {
+                Map<String, Object> comparison = HorseComparator.compareHorses(horse1, horse2);
+                showComparisonResults(comparison);
             }
         });
         
+        cancelBtn.addActionListener(e -> dialog.dispose());
+        
+        buttonPanel.add(compareBtn);
+        buttonPanel.add(cancelBtn);
+        
+        dialog.add(selectorsPanel, BorderLayout.CENTER);
+        dialog.add(buttonPanel, BorderLayout.SOUTH);
+        
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+    
+    private void updateHorse2Selector(DefaultComboBoxModel<String> model, Horse[] horses, String excludeHorse) {
+        model.removeAllElements();
+        for (Horse horse : horses) {
+            if (!horse.getName().equals(excludeHorse)) {
+                model.addElement(horse.getName());
+            }
+        }
+        if (model.getSize() > 0) {
+            model.setSelectedItem(model.getElementAt(0));
+        }
+    }
+    
+    private void showComparisonResults(Map<String, Object> comparison) {
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), 
+            "Horse Comparison Results", true);
+        dialog.setLayout(new BorderLayout(10, 10));
+        dialog.setBackground(Color.WHITE);
+        dialog.setSize(600, 400);
+        
+        // Create text area for results
+        JTextArea resultsArea = new JTextArea();
+        resultsArea.setEditable(false);
+        resultsArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
+        resultsArea.setBackground(Color.WHITE);
+        resultsArea.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        
+        // Add results to text area
+        resultsArea.setText(HorseComparator.formatComparison(comparison));
+        
+        // Create button panel
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel.setBackground(Color.WHITE);
+        JButton closeBtn = createStyledButton("Close");
+        buttonPanel.add(closeBtn);
+        
+        closeBtn.addActionListener(e -> dialog.dispose());
+        
+        dialog.add(new JScrollPane(resultsArea), BorderLayout.CENTER);
+        dialog.add(buttonPanel, BorderLayout.SOUTH);
+        
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+    
+    private JButton createStyledButton(String text) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Arial", Font.BOLD, 14));
+        button.setBackground(new Color(70, 130, 180));
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setOpaque(true);
+
+        // Add hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(100, 149, 237));
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(70, 130, 180));
+            }
+        });
+
         return button;
     }
     
