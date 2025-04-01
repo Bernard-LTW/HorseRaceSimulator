@@ -1,9 +1,0 @@
-name,base_speed,base_endurance,base_confidence
-Arabian,1.2,1.1,1.0
-Thoroughbred,1.3,1.0,1.1
-Quarter Horse,1.1,1.2,1.0
-Morgan,1.0,1.1,1.1
-Friesian,0.9,1.3,1.0
-Appaloosa,1.1,1.1,1.0
-Clydesdale,0.8,1.4,0.9
-Pony,0.7,1.2,0.8 

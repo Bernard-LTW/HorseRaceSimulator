@@ -22,27 +22,29 @@ public class Horse
     // New fields for customization
     private String breed;
     private String coatColor;
-    private double baseSpeed;
-    private double baseEndurance;
     private List<HorseItem> equipment;
     private List<HorseItem> accessories;
+    private int racesRun;
+    private int racesFinished;
+    private int racesWon;
     
     //Constructor of class Horse
     /**
      * Constructor for objects of class Horse
      */
     public Horse(char horseSymbol, String horseName, double horseConfidence, 
-                String breed, String coatColor, double baseSpeed, double baseEndurance)
+                String breed, String coatColor)
     {
-       this.horseName=horseName;
-       this.horseSymbol=horseSymbol;
-       this.setConfidence(horseConfidence);
+       this.horseName = horseName;
+       this.horseSymbol = horseSymbol;
+       this.horseConfidence = horseConfidence;  // Direct assignment instead of using setConfidence
        this.breed = breed;
        this.coatColor = coatColor;
-       this.baseSpeed = baseSpeed;
-       this.baseEndurance = baseEndurance;
        this.equipment = new ArrayList<>();
        this.accessories = new ArrayList<>();
+       this.racesRun = 0;
+       this.racesFinished = 0;
+       this.racesWon = 0;
     }
     
     
@@ -147,11 +149,11 @@ public class Horse
     }
 
     public List<HorseItem> getEquipment() {
-        return new ArrayList<>(equipment);
+        return equipment;
     }
 
     public List<HorseItem> getAccessories() {
-        return new ArrayList<>(accessories);
+        return accessories;
     }
 
     public String getBreed() {
@@ -162,16 +164,44 @@ public class Horse
         return coatColor;
     }
 
-    public double getBaseSpeed() {
-        return baseSpeed;
+    public int getRacesRun() {
+        return racesRun;
     }
 
-    public double getBaseEndurance() {
-        return baseEndurance;
+    public int getRacesFinished() {
+        return racesFinished;
+    }
+
+    public int getRacesWon() {
+        return racesWon;
+    }
+
+    public void incrementRacesRun() {
+        this.racesRun++;
+    }
+
+    public void incrementRacesFinished() {
+        this.racesFinished++;
+    }
+
+    public void incrementRacesWon() {
+        this.racesWon++;
+    }
+
+    public void setRacesRun(int racesRun) {
+        this.racesRun = racesRun;
+    }
+
+    public void setRacesFinished(int racesFinished) {
+        this.racesFinished = racesFinished;
+    }
+
+    public void setRacesWon(int racesWon) {
+        this.racesWon = racesWon;
     }
 
     private double calculateTotalSpeedModifier() {
-        double totalModifier = baseSpeed;
+        double totalModifier = 1.0;
         for (HorseItem item : equipment) {
             totalModifier *= item.getSpeedModifier();
         }
@@ -179,7 +209,7 @@ public class Horse
     }
 
     private double calculateTotalEnduranceModifier() {
-        double totalModifier = baseEndurance;
+        double totalModifier = 1.0;
         for (HorseItem item : equipment) {
             totalModifier *= item.getEnduranceModifier();
         }

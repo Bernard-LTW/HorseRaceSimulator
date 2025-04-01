@@ -12,19 +12,20 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 import models.Transaction;
+import java.util.Arrays;
 
 /**
  * Utility class for file input/output operations
  */
 public class FileIO {  // Class names should start with capital letters
     // File paths
-    private static final String HORSE_CSV_FILE = "part2/src/data/horses.csv";
+    private static final String HORSE_CSV_FILE = "part2/src/data/horses/horses.csv";
     private static final String TRANSACTION_CSV_FILE = "part2/src/data/transaction.csv";
-    private static final String TRACKS_CSV_FILE = "part2/src/data/tracks/custom.csv";
-    private static final String BREEDS_CSV_FILE = "part2/src/data/breeds.csv";
-    private static final String COAT_COLORS_CSV_FILE = "part2/src/data/coat_colors.csv";
-    private static final String EQUIPMENT_CSV_FILE = "part2/src/data/equipment.csv";
-    private static final String ACCESSORIES_CSV_FILE = "part2/src/data/accessories.csv";
+    private static final String TRACKS_CSV_FILE = "part2/src/data/tracks/tracks.csv";
+    private static final String BREEDS_CSV_FILE = "part2/src/data/horses/breeds.csv";
+    private static final String COAT_COLORS_CSV_FILE = "part2/src/data/horses/coat_colors.csv";
+    private static final String EQUIPMENT_CSV_FILE = "part2/src/data/horses/equipment.csv";
+    private static final String ACCESSORIES_CSV_FILE = "part2/src/data/horses/accessories.csv";
 
     /**
      * Reads horse data from CSV file and returns array of Horse objects
@@ -42,20 +43,53 @@ public class FileIO {  // Class names should start with capital letters
                 // Split the CSV line but handle quoted values correctly
                 String[] horseData = parseCSVLine(line);
                 
+                if (horseData.length < 5) {
+                    System.err.println("Invalid horse data: " + line);
+                    continue;
+                }
+                
                 // Extract data
                 String name = horseData[0].replace("\"", ""); // Remove quotes from name
                 char symbol = horseData[1].charAt(1); // Get the character at index 1 (after the opening quote)
                 double confidence = Double.parseDouble(horseData[2]);
+                String breed = horseData[3];
+                String coatColor = horseData[4];
                 
-                // Set default values for new attributes
-                String breed = "Thoroughbred"; // Default breed
-                String coatColor = "Bay"; // Default coat color
-                double[] breedAttributes = getBreedAttributes(breed);
-                double baseSpeed = breedAttributes != null ? breedAttributes[0] : 1.0;
-                double baseEndurance = breedAttributes != null ? breedAttributes[1] : 1.0;
+                // Create Horse object
+                Horse horse = new Horse(symbol, name, confidence, breed, coatColor);
                 
-                // Create Horse object and add to list
-                Horse horse = new Horse(symbol, name, confidence, breed, coatColor, baseSpeed, baseEndurance);
+                // Parse equipment and accessories if they exist
+                if (horseData.length > 5 && !horseData[5].isEmpty()) {
+                    String[] equipment = horseData[5].split(";");
+                    for (String itemName : equipment) {
+                        HorseItem item = findEquipmentByName(itemName);
+                        if (item != null) {
+                            horse.addEquipment(item);
+                        }
+                    }
+                }
+                
+                if (horseData.length > 6 && !horseData[6].isEmpty()) {
+                    String[] accessories = horseData[6].split(";");
+                    for (String itemName : accessories) {
+                        HorseItem item = findAccessoryByName(itemName);
+                        if (item != null) {
+                            horse.addAccessory(item);
+                        }
+                    }
+                }
+                
+                // Set race statistics if they exist
+                if (horseData.length > 7) {
+                    horse.setRacesRun(Integer.parseInt(horseData[7]));
+                }
+                if (horseData.length > 8) {
+                    horse.setRacesFinished(Integer.parseInt(horseData[8]));
+                }
+                if (horseData.length > 9) {
+                    horse.setRacesWon(Integer.parseInt(horseData[9]));
+                }
+                
                 horses.add(horse);
             }
         } catch (IOException e) {
@@ -266,13 +300,10 @@ public class FileIO {  // Class names should start with capital letters
     public static List<String> loadBreeds() {
         List<String> breeds = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(BREEDS_CSV_FILE))) {
-            String line;
-            reader.readLine(); // Skip header
-            while ((line = reader.readLine()) != null) {
-                String[] parts = parseCSVLine(line);
-                if (parts.length > 0) {
-                    breeds.add(parts[0]);
-                }
+            String line = reader.readLine();
+            if (line != null) {
+                String[] parts = line.split(",");
+                breeds.addAll(Arrays.asList(parts));
             }
         } catch (IOException e) {
             System.err.println("Error loading breeds: " + e.getMessage());
@@ -342,43 +373,50 @@ public class FileIO {  // Class names should start with capital letters
         return accessories;
     }
 
-    public static double[] getBreedAttributes(String breedName) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(BREEDS_CSV_FILE))) {
-            String line;
-            reader.readLine(); // Skip header
-            while ((line = reader.readLine()) != null) {
-                String[] parts = parseCSVLine(line);
-                if (parts.length >= 5 && parts[0].equals(breedName)) {
-                    return new double[]{
-                        Double.parseDouble(parts[1]), // base speed
-                        Double.parseDouble(parts[2]), // base endurance
-                        Double.parseDouble(parts[3])  // base confidence
-                    };
-                }
-            }
-        } catch (IOException e) {
-            System.err.println("Error getting breed attributes: " + e.getMessage());
-        }
-        return null;
-    }
-
     public static void saveHorses(Horse[] horses) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(HORSE_CSV_FILE))) {
-            writer.write("name,symbol,confidence,breed,coatColor,baseSpeed,baseEndurance");
+            writer.write("name,symbol,confidence,breed,coatColor,equipment,accessories,racesRun,racesFinished,racesWon");
             writer.newLine();
             for (Horse horse : horses) {
-                writer.write(String.format("\"%s\",'%c',%.2f,%s,%s,%.2f,%.2f%n",
+                // Get equipment and accessories as comma-separated lists
+                String equipmentList = String.join(";", horse.getEquipment().stream()
+                    .map(HorseItem::getName)
+                    .toArray(String[]::new));
+                String accessoriesList = String.join(";", horse.getAccessories().stream()
+                    .map(HorseItem::getName)
+                    .toArray(String[]::new));
+                
+                writer.write(String.format("\"%s\",'%c',%.2f,%s,%s,%s,%s,%d,%d,%d%n",
                     horse.getName(),
                     horse.getSymbol(),
                     horse.getConfidence(),
                     horse.getBreed(),
                     horse.getCoatColor(),
-                    horse.getBaseSpeed(),
-                    horse.getBaseEndurance()
+                    equipmentList,
+                    accessoriesList,
+                    horse.getRacesRun(),
+                    horse.getRacesFinished(),
+                    horse.getRacesWon()
                 ));
             }
         } catch (IOException e) {
             System.err.println("Error saving horses: " + e.getMessage());
         }
+    }
+
+    private static HorseItem findEquipmentByName(String name) {
+        List<HorseItem> equipment = loadEquipment();
+        return equipment.stream()
+            .filter(item -> item.getName().equals(name))
+            .findFirst()
+            .orElse(null);
+    }
+    
+    private static HorseItem findAccessoryByName(String name) {
+        List<HorseItem> accessories = loadAccessories();
+        return accessories.stream()
+            .filter(item -> item.getName().equals(name))
+            .findFirst()
+            .orElse(null);
     }
 }

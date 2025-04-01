@@ -1,0 +1,9 @@
+name,symbol,confidence,breed,coatColor,equipment,accessories,racesRun,racesFinished,racesWon
+"Thunder",'A',0.6,Thoroughbred,Black,Light Saddle,Racing Blanket,0,0,0
+"Lightning",'B',0.8,Arabian,Bay,Racing Horseshoes,Training Blanket,0,0,0
+"Tornado",'C️',0.7,Quarter Horse,Chestnut,Racing Bridle,Leg Wraps,0,0,0
+"Blizzard",'D',0.9,Friesian,White,Sturdy Horseshoes,Neck Cover,0,0,0
+"Storm",'E',0.85,Morgan,Palomino,Training Bridle,Tail Bag,0,0,0
+"Whirlwind",'F',0.75,Appaloosa,Pinto,Light Saddle,Saddle Pad,0,0,0
+"Tempest",'G️',0.8,Clydesdale,Gray,Heavy Saddle,Racing Blanket,0,0,0
+"Testing Boi",'H️',0.3,Pony,Brown,Training Bridle,Training Blanket,0,0,0

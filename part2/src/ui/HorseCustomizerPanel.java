@@ -57,8 +57,8 @@ public class HorseCustomizerPanel extends JPanel {
         contentPanel.setBackground(Color.WHITE);
         contentPanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 20, 20));
 
-        // Create table model
-        String[] columns = {"Name", "Symbol", "Breed", "Coat Color", "Confidence"};
+        // Create table model with all columns
+        String[] columns = {"Name", "Symbol", "Breed", "Coat Color", "Confidence", "Races Run", "Races Finished", "Races Won", "Equipment", "Accessories"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -79,6 +79,18 @@ public class HorseCustomizerPanel extends JPanel {
         horseTable.setBackground(Color.WHITE);
         horseTable.setSelectionBackground(new Color(230, 240, 250));
         horseTable.setSelectionForeground(Color.BLACK);
+
+        // Set column widths
+        horseTable.getColumnModel().getColumn(0).setPreferredWidth(100); // Name
+        horseTable.getColumnModel().getColumn(1).setPreferredWidth(50);  // Symbol
+        horseTable.getColumnModel().getColumn(2).setPreferredWidth(100); // Breed
+        horseTable.getColumnModel().getColumn(3).setPreferredWidth(100); // Coat Color
+        horseTable.getColumnModel().getColumn(4).setPreferredWidth(80);  // Confidence
+        horseTable.getColumnModel().getColumn(5).setPreferredWidth(80);  // Races Run
+        horseTable.getColumnModel().getColumn(6).setPreferredWidth(100); // Races Finished
+        horseTable.getColumnModel().getColumn(7).setPreferredWidth(80);  // Races Won
+        horseTable.getColumnModel().getColumn(8).setPreferredWidth(150); // Equipment
+        horseTable.getColumnModel().getColumn(9).setPreferredWidth(150); // Accessories
 
         // Add scroll pane
         JScrollPane scrollPane = new JScrollPane(horseTable);
@@ -160,23 +172,12 @@ public class HorseCustomizerPanel extends JPanel {
                 return;
             }
 
-            double[] breedAttributes = FileIO.getBreedAttributes(breed);
-            if (breedAttributes == null) {
-                JOptionPane.showMessageDialog(dialog,
-                        "Error loading breed attributes",
-                        "Error",
-                        JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
             Horse newHorse = new Horse(
                 symbol.charAt(0),
                 name,
-                breedAttributes[2], // base confidence from breed
+                1.0, // default confidence
                 breed,
-                coatColor,
-                breedAttributes[0], // base speed
-                breedAttributes[1]  // base endurance
+                coatColor
             );
 
             horses.add(newHorse);
@@ -254,14 +255,6 @@ public class HorseCustomizerPanel extends JPanel {
                 return;
             }
 
-            double[] breedAttributes = FileIO.getBreedAttributes(breed);
-            if (breedAttributes == null) {
-                JOptionPane.showMessageDialog(dialog,
-                        "Error loading breed attributes",
-                        "Error",
-                        JOptionPane.ERROR_MESSAGE);
-                return;
-            }
 
             selectedHorse.setSymbol(symbol.charAt(0));
             horses.set(selectedRow, selectedHorse);
@@ -392,12 +385,25 @@ public class HorseCustomizerPanel extends JPanel {
     private void updateHorseTable() {
         tableModel.setRowCount(0);
         for (Horse horse : horses) {
+            // Format equipment and accessories as comma-separated lists
+            String equipmentList = String.join(", ", horse.getEquipment().stream()
+                .map(HorseItem::getName)
+                .toArray(String[]::new));
+            String accessoriesList = String.join(", ", horse.getAccessories().stream()
+                .map(HorseItem::getName)
+                .toArray(String[]::new));
+
             tableModel.addRow(new Object[]{
                 horse.getName(),
                 horse.getSymbol(),
                 horse.getBreed(),
                 horse.getCoatColor(),
-                String.format("%.2f", horse.getConfidence())
+                String.format("%.2f", horse.getConfidence()),
+                horse.getRacesRun(),
+                horse.getRacesFinished(),
+                horse.getRacesWon(),
+                equipmentList,
+                accessoriesList
             });
         }
     }
