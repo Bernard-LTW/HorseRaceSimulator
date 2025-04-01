@@ -59,7 +59,7 @@ public class HorseCustomizerPanel extends JPanel {
         contentPanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 20, 20));
 
         // Create table model with all columns
-        String[] columns = {"Name", "Symbol", "Breed", "Coat Color", "Confidence", "Races Run", "Races Finished", "Races Won", "Equipment", "Accessories"};
+        String[] columns = {"Name", "Symbol", "Breed", "Coat Color", "Confidence", "Equipment", "Accessories"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -87,11 +87,8 @@ public class HorseCustomizerPanel extends JPanel {
         horseTable.getColumnModel().getColumn(2).setPreferredWidth(100); // Breed
         horseTable.getColumnModel().getColumn(3).setPreferredWidth(100); // Coat Color
         horseTable.getColumnModel().getColumn(4).setPreferredWidth(80);  // Confidence
-        horseTable.getColumnModel().getColumn(5).setPreferredWidth(80);  // Races Run
-        horseTable.getColumnModel().getColumn(6).setPreferredWidth(100); // Races Finished
-        horseTable.getColumnModel().getColumn(7).setPreferredWidth(80);  // Races Won
-        horseTable.getColumnModel().getColumn(8).setPreferredWidth(150); // Equipment
-        horseTable.getColumnModel().getColumn(9).setPreferredWidth(150); // Accessories
+        horseTable.getColumnModel().getColumn(5).setPreferredWidth(150); // Equipment
+        horseTable.getColumnModel().getColumn(6).setPreferredWidth(150); // Accessories
 
         // Add scroll pane
         JScrollPane scrollPane = new JScrollPane(horseTable);
@@ -567,9 +564,6 @@ public class HorseCustomizerPanel extends JPanel {
                 horse.getBreed(),
                 horse.getCoatColor(),
                 String.format("%.2f", horse.getConfidence()),
-                horse.getRacesRun(),
-                horse.getRacesFinished(),
-                horse.getRacesWon(),
                 equipmentList,
                 accessoriesList
             });

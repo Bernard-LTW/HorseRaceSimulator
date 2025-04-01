@@ -24,9 +24,6 @@ public class Horse
     private String coatColor;
     private List<HorseItem> equipment;
     private List<HorseItem> accessories;
-    private int racesRun;
-    private int racesFinished;
-    private int racesWon;
     
     //Constructor of class Horse
     /**
@@ -42,9 +39,6 @@ public class Horse
        this.coatColor = coatColor;
        this.equipment = new ArrayList<>();
        this.accessories = new ArrayList<>();
-       this.racesRun = 0;
-       this.racesFinished = 0;
-       this.racesWon = 0;
     }
     
     
@@ -162,42 +156,6 @@ public class Horse
 
     public String getCoatColor() {
         return coatColor;
-    }
-
-    public int getRacesRun() {
-        return racesRun;
-    }
-
-    public int getRacesFinished() {
-        return racesFinished;
-    }
-
-    public int getRacesWon() {
-        return racesWon;
-    }
-
-    public void incrementRacesRun() {
-        this.racesRun++;
-    }
-
-    public void incrementRacesFinished() {
-        this.racesFinished++;
-    }
-
-    public void incrementRacesWon() {
-        this.racesWon++;
-    }
-
-    public void setRacesRun(int racesRun) {
-        this.racesRun = racesRun;
-    }
-
-    public void setRacesFinished(int racesFinished) {
-        this.racesFinished = racesFinished;
-    }
-
-    public void setRacesWon(int racesWon) {
-        this.racesWon = racesWon;
     }
 
     private double calculateTotalSpeedModifier() {

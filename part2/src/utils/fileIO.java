@@ -85,17 +85,6 @@ public class FileIO {  // Class names should start with capital letters
                     }
                 }
                 
-                // Set race statistics if they exist
-                if (horseData.length > 7) {
-                    horse.setRacesRun(Integer.parseInt(horseData[7]));
-                }
-                if (horseData.length > 8) {
-                    horse.setRacesFinished(Integer.parseInt(horseData[8]));
-                }
-                if (horseData.length > 9) {
-                    horse.setRacesWon(Integer.parseInt(horseData[9]));
-                }
-                
                 horses.add(horse);
             }
         } catch (IOException e) {
@@ -412,29 +401,29 @@ public class FileIO {  // Class names should start with capital letters
 
     public static void saveHorses(Horse[] horses) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(HORSE_CSV_FILE))) {
-            writer.write("name,symbol,confidence,breed,coatColor,equipment,accessories,racesRun,racesFinished,racesWon");
+            // Write header
+            writer.write("name,symbol,confidence,breed,coatColor,equipment,accessories");
             writer.newLine();
+
+            // Write horse data
             for (Horse horse : horses) {
-                // Get equipment and accessories as comma-separated lists
-                String equipmentList = String.join(";", horse.getEquipment().stream()
+                String equipmentStr = String.join(";", horse.getEquipment().stream()
                     .map(HorseItem::getName)
                     .toArray(String[]::new));
-                String accessoriesList = String.join(";", horse.getAccessories().stream()
+                String accessoriesStr = String.join(";", horse.getAccessories().stream()
                     .map(HorseItem::getName)
                     .toArray(String[]::new));
-                
-                writer.write(String.format("\"%s\",'%c',%.2f,%s,%s,%s,%s,%d,%d,%d%n",
+
+                writer.write(String.format("%s,%s,%.2f,%s,%s,%s,%s",
                     horse.getName(),
                     horse.getSymbol(),
                     horse.getConfidence(),
                     horse.getBreed(),
                     horse.getCoatColor(),
-                    equipmentList,
-                    accessoriesList,
-                    horse.getRacesRun(),
-                    horse.getRacesFinished(),
-                    horse.getRacesWon()
+                    equipmentStr,
+                    accessoriesStr
                 ));
+                writer.newLine();
             }
         } catch (IOException e) {
             System.err.println("Error saving horses: " + e.getMessage());
