@@ -18,6 +18,7 @@ import models.Bet;
 import models.Transaction;
 import core.BetManager;
 import utils.FileIO;
+import utils.BettingOdds;
 
 public class BettingPanel extends JPanel {
     private Race currentRace;
@@ -62,17 +63,18 @@ public class BettingPanel extends JPanel {
         leftPanel.setBorder(BorderFactory.createTitledBorder("Selected Horses"));
         
         // Create table model for selected horses
-        String[] selectedColumns = {"Horse", "Symbol", "Bet Amount"};
+        String[] selectedColumns = {"Horse", "Symbol", "Odds", "Bet Amount"};
         selectedHorsesModel = new DefaultTableModel(selectedColumns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 2; // Only bet amount column is editable
+                return column == 3; // Only bet amount column is editable
             }
         };
         selectedHorsesTable = new JTable(selectedHorsesModel);
         selectedHorsesTable.getColumnModel().getColumn(0).setPreferredWidth(150);
         selectedHorsesTable.getColumnModel().getColumn(1).setPreferredWidth(50);
         selectedHorsesTable.getColumnModel().getColumn(2).setPreferredWidth(100);
+        selectedHorsesTable.getColumnModel().getColumn(3).setPreferredWidth(100);
         leftPanel.add(new JScrollPane(selectedHorsesTable), BorderLayout.CENTER);
         
         // Middle panel - Bet Controls
@@ -101,7 +103,7 @@ public class BettingPanel extends JPanel {
         rightPanel.setBorder(BorderFactory.createTitledBorder("Current Bets"));
         
         // Create table model for current bets
-        String[] betColumns = {"Horse", "Symbol", "Bet Amount"};
+        String[] betColumns = {"Horse", "Symbol", "Odds", "Bet Amount", "Potential Win"};
         currentBetsModel = new DefaultTableModel(betColumns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -112,6 +114,8 @@ public class BettingPanel extends JPanel {
         currentBetsTable.getColumnModel().getColumn(0).setPreferredWidth(150);
         currentBetsTable.getColumnModel().getColumn(1).setPreferredWidth(50);
         currentBetsTable.getColumnModel().getColumn(2).setPreferredWidth(100);
+        currentBetsTable.getColumnModel().getColumn(3).setPreferredWidth(100);
+        currentBetsTable.getColumnModel().getColumn(4).setPreferredWidth(100);
         rightPanel.add(new JScrollPane(currentBetsTable), BorderLayout.CENTER);
         
         contentPanel.add(leftPanel);
@@ -146,18 +150,17 @@ public class BettingPanel extends JPanel {
     
     public void setRace(Race race) {
         this.currentRace = race;
-        updateHorsesPanel();
-    }
-    
-    private void updateHorsesPanel() {
         selectedHorsesModel.setRowCount(0);
         currentBetsModel.setRowCount(0);
         
-        if (currentRace != null) {
-            for (Horse horse : currentRace.getLanes()) {
+        // Add horses to selected horses table with odds
+        for (Horse horse : race.getLanes()) {
+            if (horse != null) {
+                double odds = BettingOdds.calculateOdds(horse, race.getTrack());
                 selectedHorsesModel.addRow(new Object[]{
                     horse.getName(),
                     String.valueOf(horse.getSymbol()),
+                    BettingOdds.formatOdds(odds),
                     ""
                 });
             }
@@ -194,6 +197,7 @@ public class BettingPanel extends JPanel {
             for (int row : selectedRows) {
                 String horseName = (String) selectedHorsesModel.getValueAt(row, 0);
                 String symbol = (String) selectedHorsesModel.getValueAt(row, 1);
+                String oddsStr = (String) selectedHorsesModel.getValueAt(row, 2);
                 
                 // Find the horse object
                 Horse horse = null;
@@ -205,11 +209,17 @@ public class BettingPanel extends JPanel {
                 }
                 
                 if (horse != null) {
+                    // Calculate odds and potential winnings
+                    double odds = BettingOdds.calculateOdds(horse, currentRace.getTrack());
+                    double potentialWin = BettingOdds.calculatePotentialWinnings(betAmount, odds);
+                    
                     // Add to current bets
                     currentBetsModel.addRow(new Object[]{
                         horseName,
                         symbol,
-                        String.format("$%.2f", betAmount)
+                        BettingOdds.formatOdds(odds),
+                        String.format("$%.2f", betAmount),
+                        String.format("$%.2f", potentialWin)
                     });
                     
                     // Remove from selected horses
@@ -234,6 +244,7 @@ public class BettingPanel extends JPanel {
         for (int row : selectedRows) {
             String horseName = (String) currentBetsModel.getValueAt(row, 0);
             String symbol = (String) currentBetsModel.getValueAt(row, 1);
+            String oddsStr = (String) currentBetsModel.getValueAt(row, 2);
             
             // Find the horse object
             Horse horse = null;
@@ -249,6 +260,7 @@ public class BettingPanel extends JPanel {
                 selectedHorsesModel.addRow(new Object[]{
                     horseName,
                     symbol,
+                    oddsStr,
                     ""
                 });
                 

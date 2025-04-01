@@ -43,6 +43,14 @@ public class Race {
     }
     
     /**
+     * Get the track this race is being run on
+     * @return The track object
+     */
+    public Track getTrack() {
+        return this.track;
+    }
+    
+    /**
      * Adds a horse to the race in a given lane
      * 
      * @param theHorse the horse to be added to the race
