@@ -48,7 +48,9 @@ public class BetManager {
      */
     public void processRaceResults(Race race) {
         List<Bet> raceBetsList = raceBets.get(race.getRaceID());
-        if (raceBetsList == null) return;
+        if (raceBetsList == null || raceBetsList.isEmpty()) {
+            return; // No bets to process
+        }
         
         // Get winning horse
         Horse winner = race.getFinishOrder().get(0);

@@ -11,8 +11,6 @@ import java.util.stream.Collectors;
 public class RaceStatistics {
     private static final String RACES_CSV_FILE = "part2/src/data/races.csv";
     private static final String BETS_CSV_FILE = "part2/src/data/bets/bets.csv";
-    private static final String HORSES_CSV_FILE = "part2/src/data/horses/horses.csv";
-    private static final String TRACKS_CSV_FILE = "part2/src/data/tracks/tracks.csv";
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     
     // Track records data structure
