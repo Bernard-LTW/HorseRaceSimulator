@@ -7,7 +7,7 @@ public class RaceTest {
         Horse horse4 = new Horse('0', "Yooooo", 0.1);
 
         // Create a race with a specific length (e.g., 30 units)
-        Race horseRace = new Race(30,4);
+        Race horseRace = new Race(10,4);
         
         // Add horses to lanes
         horseRace.addHorse(horse1, 1);

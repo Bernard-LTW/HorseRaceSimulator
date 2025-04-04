@@ -1,0 +1,2 @@
+- Betting summary prints twice????
+- Input validate the char for symbol on add horse?

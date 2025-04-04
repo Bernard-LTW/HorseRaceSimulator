@@ -1,0 +1,7 @@
+name,type,speed_modifier,endurance_modifier,confidence_modifier,description
+Light Saddle,Equipment,1.1,1.0,1.0,Lightweight racing saddle
+Heavy Saddle,Equipment,0.9,1.2,1.0,Sturdy training saddle
+Racing Horseshoes,Equipment,1.2,0.9,1.0,Lightweight racing horseshoes
+Sturdy Horseshoes,Equipment,0.9,1.2,1.0,Heavy-duty horseshoes
+Racing Bridle,Equipment,1.1,1.0,1.1,Precision racing bridle
+Training Bridle,Equipment,0.9,1.1,1.0,Comfortable training bridle 
