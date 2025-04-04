@@ -1,6 +1,9 @@
 # Horse Race Simulator
 
+
 A Java-based Object-Oriented Programming project that simulates a horse race with a graphical user interface.
+
+![](md_assets/screencap.jpg)
 
 ## Project Structure
 
@@ -11,7 +14,6 @@ A Java-based Object-Oriented Programming project that simulates a horse race wit
 │   └── README.md         # Part 1 specific instructions
 ├── part2/                # GUI implementation
 │   └── src/              # Source code for part 2
-│       ├── core/         # Core game logic
 │       ├── models/       # Data models
 │       ├── ui/           # User interface components
 │       ├── utils/        # Utility classes
@@ -22,7 +24,7 @@ A Java-based Object-Oriented Programming project that simulates a horse race wit
 
 ## Prerequisites
 
-- Java Development Kit (JDK) 11 or higher
+- Java Development Kit (JDK) 22 or higher
 
 ## Setup Instructions
 
@@ -52,16 +54,3 @@ javac -cp ".:src" src/**/*.java
 # Run the application
 java -cp ".:src" ui.MainUI
 ```
-
-## Features
-
-### Part 1
-- Basic horse class implementation
-- Race simulation
-- Unit tests
-
-### Part 2
-- Graphical User Interface
-- Real-time race visualization
-- Horse statistics and betting system
-- Race history tracking
