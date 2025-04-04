@@ -8,14 +8,10 @@ import java.util.UUID;
 import java.util.Map;
 import java.util.HashMap;
 
-/**
- * A three-horse race, each horse running in its own lane
- * for a given distance
- * 
- * @author McRaceface
- * @version 1.0
- */
+import utils.FileIO;
+
 public class Race {
+
     private String raceID = UUID.randomUUID().toString();
     private Track track;
     private Horse[] lanes;
@@ -23,14 +19,9 @@ public class Race {
     private long startTime;
     private Map<Horse, Long> finishTimes;
     final static double fallProbability = 0.01;
+    private Map<Horse, Double> confidenceChanges = new HashMap<>();
 
-    /**
-     * Constructor for objects of class Race
-     * Initially there are no horses in the lanes
-     * 
-     * @param distance the length of the racetrack (in metres/yards...)
-     * @param numberOfLanes the number of lanes in the race
-     */
+
     public Race(Track track) {
         this.track = track;
         this.lanes = new Horse[track.getLaneCount()];
@@ -38,24 +29,15 @@ public class Race {
         this.finishTimes = new HashMap<>();
     }
 
-    public String getRaceID(){
+    public String getRaceID() {
         return this.raceID;
     }
-    
-    /**
-     * Get the track this race is being run on
-     * @return The track object
-     */
+
+
     public Track getTrack() {
         return this.track;
     }
-    
-    /**
-     * Adds a horse to the race in a given lane
-     * 
-     * @param theHorse the horse to be added to the race
-     * @param laneNumber the lane that the horse will be added to
-     */
+
     public void addHorse(Horse theHorse, int laneNumber) {
         if (laneNumber < 1 || laneNumber > lanes.length) {
             System.out.println("Cannot add horse to lane " + laneNumber + " because there is no such lane");
@@ -63,13 +45,7 @@ public class Race {
         }
         lanes[laneNumber - 1] = theHorse;
     }
-    
-    /**
-     * Start the race
-     * The horse are brought to the start and
-     * then repeatedly moved forward until the 
-     * race is finished
-     */
+
     public void startRace() {
         for (Horse horse : lanes) {
             if (horse == null) {
@@ -77,20 +53,19 @@ public class Race {
                 return;
             }
         }
-        
+
         boolean raceComplete = false;
         finishOrder.clear();
         finishTimes.clear();
         startTime = System.currentTimeMillis();
-        
+
         for (Horse horse : lanes) {
             horse.goBackToStart();
         }
-        
+
         while (!raceComplete) {
-            // Clear the output stream before printing new frame
             System.out.flush();
-            
+
             for (Horse horse : lanes) {
                 if (!raceWonBy(horse) && !horse.hasFallen()) {
                     moveHorse(horse);
@@ -100,9 +75,10 @@ public class Race {
                     }
                 }
             }
-            
-            printRace();
-            
+
+            //For debugging:
+            //printRace();
+
             raceComplete = true;
             for (Horse horse : lanes) {
                 if (!raceWonBy(horse) && !horse.hasFallen()) {
@@ -110,22 +86,22 @@ public class Race {
                     break;
                 }
             }
-            
+
             try {
                 TimeUnit.MILLISECONDS.sleep(100);
             } catch (Exception e) {
             }
         }
-        
+
         System.out.println("Race ID:" + this.getRaceID());
 
         System.out.println("\n=== RACE RESULTS ===");
-        
+
         for (int i = 0; i < finishOrder.size(); i++) {
             Horse horse = finishOrder.get(i);
             System.out.println((i + 1) + ". Horse " + horse.getSymbol() + " - FINISHED (" + horse.getDistanceTravelled() + " units)");
         }
-        
+
         List<Horse> fallenHorses = new ArrayList<>();
         for (Horse horse : lanes) {
             if (horse.hasFallen()) {
@@ -133,11 +109,11 @@ public class Race {
             }
         }
         Collections.sort(fallenHorses, (h1, h2) -> Double.compare(h2.getDistanceTravelled(), h1.getDistanceTravelled()));
-        
+
         for (Horse horse : fallenHorses) {
             System.out.println((finishOrder.size() + fallenHorses.indexOf(horse) + 1) + ". Horse " + horse.getSymbol() + " - FELL at " + horse.getDistanceTravelled() + " units");
         }
-        
+
         if (!finishOrder.isEmpty()) {
             System.out.println("\nWINNER: Horse " + finishOrder.get(0).getSymbol() + "!");
         } else {
@@ -147,55 +123,69 @@ public class Race {
         // Store race results after the race ends
         storeRaceResults();
     }
-    
-    /**
-     * Randomly make a horse move forward or fall depending
-     * on its confidence rating
-     * A fallen horse cannot move
-     * 
-     * @param theHorse the horse to be moved
-     */
+
     private void moveHorse(Horse theHorse) {
         if (!theHorse.hasFallen()) {
-            if (Math.random() < theHorse.getConfidence()) {
+            // Get modifiers
+            double speedModifier = track.getSpeedModifier();
+            double fallRiskModifier = track.getFallRiskModifier();
+            double shapeAdjustment = track.getShapeSpeedAdjustment(theHorse.getDistanceTravelled());
+            double equipmentSpeedMod = theHorse.calculateTotalSpeedModifier();
+            double equipmentEnduranceMod = theHorse.calculateTotalEnduranceModifier();
+            double equipmentConfidenceMod = theHorse.calculateTotalConfidenceModifier();
+
+            double effectiveConfidence = theHorse.getConfidence() * equipmentConfidenceMod;
+            effectiveConfidence = Math.min(1.0, effectiveConfidence);
+            double moveChance = effectiveConfidence * speedModifier * shapeAdjustment * equipmentSpeedMod;
+
+            double raceProgress = (double) theHorse.getDistanceTravelled() / track.getLength();
+            double enduranceEffect = 1.0 - (raceProgress * (1.0 - equipmentEnduranceMod));
+            moveChance *= enduranceEffect;
+
+            if (Math.random() < moveChance) {
                 theHorse.moveForward();
             }
 
-            if (Math.random() < (fallProbability * theHorse.getConfidence() * theHorse.getConfidence())) {
+            double fallChance = (fallProbability * effectiveConfidence * effectiveConfidence + fallRiskModifier) / equipmentConfidenceMod;
+
+            if (Math.random() < fallChance) {
                 theHorse.fall();
             }
         }
     }
-    
-    /***
-     * Determines if a horse has won the race
-     *
-     * @param theHorse The horse we are testing
-     * @return true if the horse has won, false otherwise.
-     */
+
     private boolean raceWonBy(Horse theHorse) {
         return theHorse.getDistanceTravelled() >= track.getLength();
     }
-    
-    /***
-     * Print the race on the terminal
-     */
+
+    public Map<Horse, Double> getConfidenceChanges() {
+        return confidenceChanges;
+    }
+
+    public List<Horse> getFinishOrder() {
+        return finishOrder;
+    }
+
+    public Horse[] getLanes() {
+        return lanes;
+    }
+
     private void printRace() {
         // Print top border
         multiplePrint('=', track.getLength() + 3);
         System.out.println();
-        
+
         // Print each lane
         for (Horse horse : lanes) {
             printLane(horse);
             System.out.println();
         }
-        
+
         // Print bottom border
         multiplePrint('=', track.getLength() + 3);
         System.out.println();
     }
-    
+
     /**
      * print a horse's lane during the race
      * for example
@@ -205,26 +195,26 @@ public class Race {
     private void printLane(Horse theHorse) {
         int spacesBefore = theHorse.getDistanceTravelled();
         int spacesAfter = track.getLength() - theHorse.getDistanceTravelled();
-        
+
         System.out.print('|');
-        
+
         multiplePrint(' ', spacesBefore);
-        
+
         if (theHorse.hasFallen()) {
             System.out.print('X');
         } else {
             System.out.print(theHorse.getSymbol());
         }
-        
+
         multiplePrint(' ', spacesAfter);
-        
+
         System.out.print('|');
     }
-        
+
     /***
      * print a character a given number of times.
      * e.g. printmany('x',5) will print: xxxxx
-     * 
+     *
      * @param aChar the character to Print
      */
     private void multiplePrint(char aChar, int times) {
@@ -245,22 +235,17 @@ public class Race {
     private void adjustHorseConfidence(Horse horse, int position, boolean hasFallen) {
         double currentConfidence = horse.getConfidence();
         double adjustment = 0.0;
-        
+
         if (hasFallen) {
-            // Small penalty for falling
             adjustment = -0.03;
         } else if (position == 1) {
-            // Winner gets a moderate boost
             adjustment = 0.07;
         } else if (position <= 3) {
-            // Top 3 finishers get a small boost
             adjustment = 0.02;
         } else {
-            // Other finishers get a tiny boost
             adjustment = 0.01;
         }
-        
-        // Apply the adjustment while keeping confidence between 0 and 1
+
         double newConfidence = Math.max(0.0, Math.min(1.0, currentConfidence + adjustment));
         horse.setConfidence(newConfidence);
     }
@@ -268,62 +253,43 @@ public class Race {
     /**
      * Stores the race results in the CSV file
      */
-    private Map<Horse, Double> confidenceChanges = new HashMap<>();
-
-    public Map<Horse, Double> getConfidenceChanges() {
-        return confidenceChanges;
-    }
 
     private void storeRaceResults() {
         // Create a list to store all horses in finish order
         List<Horse> allHorses = new ArrayList<>(finishOrder);
-        confidenceChanges.clear(); // Clear previous changes
-        
-        // Add fallen horses sorted by distance travelled
+        confidenceChanges.clear();
+
         List<Horse> fallenHorses = new ArrayList<>();
         for (Horse horse : lanes) {
             if (horse.hasFallen()) {
                 fallenHorses.add(horse);
             }
         }
-        Collections.sort(fallenHorses, (h1, h2) -> Double.compare(h2.getDistanceTravelled(), h1.getDistanceTravelled()));
+        fallenHorses.sort((h1, h2) -> Double.compare(h2.getDistanceTravelled(), h1.getDistanceTravelled()));
         allHorses.addAll(fallenHorses);
 
-        // Store each horse's result and adjust their confidence
         for (int i = 0; i < allHorses.size(); i++) {
             Horse horse = allHorses.get(i);
             long finishTime = finishTimes.getOrDefault(horse, -1L); // -1 for fallen horses
             double oldConfidence = horse.getConfidence();
-            
-            // Store basic race result
-            utils.FileIO.storeRaceResult(raceID, horse.getName(), horse.getSymbol(), 
-                horse.getConfidence(), horse.getDistanceTravelled(), i + 1, finishTime);
-            
-            // Store detailed race statistics
+
+            FileIO.storeRaceResult(raceID, horse.getName(), horse.getSymbol(),
+                    horse.getConfidence(), horse.getDistanceTravelled(), i + 1, finishTime);
+
             RaceStatistics.storeRaceStats(raceID, horse.getName(), horse.getConfidence(),
-                horse.getDistanceTravelled(), i + 1, finishTime, track.getName(), track.getCondition());
-                
-            // Adjust horse confidence based on performance
+                    horse.getDistanceTravelled(), i + 1, finishTime, track.getName(), track.getCondition());
+
             adjustHorseConfidence(horse, i + 1, horse.hasFallen());
-            
-            // Store confidence change
+
+            //for ui summary
             double change = horse.getConfidence() - oldConfidence;
             confidenceChanges.put(horse, change);
         }
-        
-        // Update track records if we have a winner
+
         if (!finishOrder.isEmpty()) {
             Horse winner = finishOrder.get(0);
             long winnerTime = finishTimes.get(winner);
-            RaceStatistics.updateTrackRecords(track.getName(), track.getCondition(), winnerTime, winner.getName());
+            RaceStatistics.updateTrackRecords(track.getName(), winnerTime, winner.getName());
         }
-    }
-
-    public List<Horse> getFinishOrder() {
-        return finishOrder;
-    }
-    
-    public Horse[] getLanes() {
-        return lanes;
     }
 }

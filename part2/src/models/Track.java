@@ -27,99 +27,55 @@ public class Track {
         this.bestHorse = "";
     }
 
-    public String getName() {
-        return name;
-    }
+    public String getName() { return name; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public void setName(String name) { this.name = name;}
 
-    public int getLaneCount() {
-        return laneCount;
-    }
+    public int getLaneCount() { return laneCount;}
 
-    public int getLength() {
-        return length;
-    }
+    public int getLength() { return length; }
 
-    public TrackShape getShape() {
-        return shape;
-    }
+    public TrackShape getShape() { return shape; }
 
-    public TrackCondition getCondition() {
-        return condition;
-    }
+    public TrackCondition getCondition() { return condition; }
 
-    public void setLaneCount(int laneCount) {
-        this.laneCount = laneCount;
-    }
+    public void setLength(int length) { this.length = length; }
 
-    public void setLength(int length) {
-        this.length = length;
-    }
+    public void setCondition(TrackCondition condition) { this.condition = condition; }
 
-    public void setShape(TrackShape shape) {
-        this.shape = shape;
-    }
+    public double getBestTime() { return bestTime; }
 
-    public void setCondition(TrackCondition condition) {
-        this.condition = condition;
-    }
+    public void setBestTime(double bestTime) { this.bestTime = bestTime; }
+
+    public String getBestHorse() { return bestHorse; }
+
+    public void setBestHorse(String bestHorse) { this.bestHorse = bestHorse;}
 
     public double getSpeedModifier() {
-        switch (condition) {
-            case MUDDY:
-                return 0.8; // 20% slower
-            case DRY:
-                return 1.0; // Normal speed
-            case ICY:
-                return 0.6; // 40% slower
-            default:
-                return 1.0;
-        }
+        return switch (condition) {
+            case MUDDY -> 0.8;
+            case DRY -> 1.0;
+            case ICY -> 0.6;
+        };
     }
 
     public double getFallRiskModifier() {
-        switch (condition) {
-            case MUDDY:
-                return 0.1; // Low risk
-            case DRY:
-                return 0.0; // No risk
-            case ICY:
-                return 0.3; // High risk
-            default:
-                return 0.0;
-        }
+        return switch (condition) {
+            case MUDDY -> 0.1;
+            case DRY -> 0.0;
+            case ICY -> 0.3;
+        };
     }
 
     public double getShapeSpeedAdjustment(int distanceTravelled) {
-        switch (shape) {
-            case OVAL:
-                return 1.0; // Constant speed
-            case FIGURE_EIGHT:
+        return switch (shape) {
+            case OVAL -> 1.0;
+            case FIGURE_EIGHT -> {
                 if (distanceTravelled % (length / 2) == 0) {
-                    return 0.7; // Slow down at intersections
+                    yield 0.7;
                 }
-                return 1.0;
-            default:
-                return 1.0;
-        }
-    }
-
-    public double getBestTime() {
-        return bestTime;
-    }
-
-    public void setBestTime(double bestTime) {
-        this.bestTime = bestTime;
-    }
-
-    public String getBestHorse() {
-        return bestHorse;
-    }
-
-    public void setBestHorse(String bestHorse) {
-        this.bestHorse = bestHorse;
+                yield 1.0;
+            }
+        };
     }
 }

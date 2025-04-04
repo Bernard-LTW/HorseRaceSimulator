@@ -11,16 +11,10 @@ import java.util.List;
  */
 public class HorseComparator {
     
-    /**
-     * Compare two horses and return a detailed comparison map
-     * @param horse1 First horse to compare
-     * @param horse2 Second horse to compare
-     * @return Map containing comparison results
-     */
+
     public static Map<String, Object> compareHorses(Horse horse1, Horse horse2) {
         Map<String, Object> comparison = new HashMap<>();
         
-        // Basic attributes comparison
         comparison.put("name1", horse1.getName());
         comparison.put("name2", horse2.getName());
         comparison.put("symbol1", horse1.getSymbol());
@@ -30,123 +24,87 @@ public class HorseComparator {
         comparison.put("coatColor1", horse1.getCoatColor());
         comparison.put("coatColor2", horse2.getCoatColor());
         
-        // Performance attributes
         comparison.put("confidence1", horse1.getConfidence());
         comparison.put("confidence2", horse2.getConfidence());
         comparison.put("confidenceDifference", horse1.getConfidence() - horse2.getConfidence());
         
-        // Equipment comparison
         comparison.put("equipment1", horse1.getEquipment());
         comparison.put("equipment2", horse2.getEquipment());
         
-        // Accessories comparison
         comparison.put("accessories1", horse1.getAccessories());
         comparison.put("accessories2", horse2.getAccessories());
         
-        // Calculate total speed modifier
-        double speedMod1 = calculateTotalSpeedModifier(horse1);
-        double speedMod2 = calculateTotalSpeedModifier(horse2);
+        double speedMod1 = horse1.calculateTotalSpeedModifier();
+        double speedMod2 = horse2.calculateTotalSpeedModifier();
         comparison.put("speedModifier1", speedMod1);
         comparison.put("speedModifier2", speedMod2);
         comparison.put("speedModifierDifference", speedMod1 - speedMod2);
         
-        // Calculate total endurance modifier
-        double enduranceMod1 = calculateTotalEnduranceModifier(horse1);
-        double enduranceMod2 = calculateTotalEnduranceModifier(horse2);
+        double enduranceMod1 = horse1.calculateTotalEnduranceModifier();
+        double enduranceMod2 = horse2.calculateTotalEnduranceModifier();
         comparison.put("enduranceModifier1", enduranceMod1);
         comparison.put("enduranceModifier2", enduranceMod2);
         comparison.put("enduranceModifierDifference", enduranceMod1 - enduranceMod2);
         
         return comparison;
     }
-    
-    /**
-     * Format odds as a string in traditional format (e.g., "2.5 to 1")
-     */
-    public static String formatOdds(double decimalOdds) {
-        return String.format("%.1f to 1", decimalOdds - 1.0);
-    }
-    
-    /**
-     * Calculate potential winnings for a bet amount at given odds
-     */
-    public static double calculatePotentialWinnings(double betAmount, double odds) {
-        return betAmount * odds;
-    }
-    
-    /**
-     * Format the comparison results as a readable string
-     * @param comparison Map containing comparison results
-     * @return Formatted string with comparison details
-     */
+
+
+
     public static String formatComparison(Map<String, Object> comparison) {
-        StringBuilder sb = new StringBuilder();
-        
+
         // Header
-        sb.append("=== Horse Comparison ===\n\n");
+
+        String s = "=== Horse Comparison ===\n\n" +
+
+                "Horse 1: " + comparison.get("name1") +
+                " (" + comparison.get("symbol1") + ")\n" +
+                "Breed: " + comparison.get("breed1") +
+                ", Coat Color: " + comparison.get("coatColor1") + "\n" +
+                "\nHorse 2: " + comparison.get("name2") +
+                " (" + comparison.get("symbol2") + ")\n" +
+                "Breed: " + comparison.get("breed2") +
+                ", Coat Color: " + comparison.get("coatColor2") + "\n\n" +
+
+                "=== Performance Metrics ===\n" +
+                String.format("Confidence: %.2f vs %.2f (Difference: %.2f)\n",
+                        comparison.get("confidence1"), comparison.get("confidence2"),
+                        comparison.get("confidenceDifference")) +
+                String.format("Speed Modifier: %.2f vs %.2f (Difference: %.2f)\n",
+                        comparison.get("speedModifier1"), comparison.get("speedModifier2"),
+                        comparison.get("speedModifierDifference")) +
+                String.format("Endurance Modifier: %.2f vs %.2f (Difference: %.2f)\n",
+                        comparison.get("enduranceModifier1"), comparison.get("enduranceModifier2"),
+                        comparison.get("enduranceModifierDifference")) +
+
+                "\n=== Equipment ===\n" +
+                "Horse 1: " + formatItemList(comparison.get("equipment1")) + "\n" +
+                "Horse 2: " + formatItemList(comparison.get("equipment2")) + "\n" +
+
+                "\n=== Accessories ===\n" +
+                "Horse 1: " + formatItemList(comparison.get("accessories1")) + "\n" +
+                "Horse 2: " + formatItemList(comparison.get("accessories2")) + "\n";
         
-        // Basic Information
-        sb.append("Horse 1: ").append(comparison.get("name1"))
-          .append(" (").append(comparison.get("symbol1")).append(")\n");
-        sb.append("Breed: ").append(comparison.get("breed1"))
-          .append(", Coat Color: ").append(comparison.get("coatColor1")).append("\n");
-        
-        sb.append("\nHorse 2: ").append(comparison.get("name2"))
-          .append(" (").append(comparison.get("symbol2")).append(")\n");
-        sb.append("Breed: ").append(comparison.get("breed2"))
-          .append(", Coat Color: ").append(comparison.get("coatColor2")).append("\n\n");
-        
-        // Performance Metrics
-        sb.append("=== Performance Metrics ===\n");
-        sb.append(String.format("Confidence: %.2f vs %.2f (Difference: %.2f)\n",
-            comparison.get("confidence1"), comparison.get("confidence2"),
-            comparison.get("confidenceDifference")));
-        
-        sb.append(String.format("Speed Modifier: %.2f vs %.2f (Difference: %.2f)\n",
-            comparison.get("speedModifier1"), comparison.get("speedModifier2"),
-            comparison.get("speedModifierDifference")));
-        
-        sb.append(String.format("Endurance Modifier: %.2f vs %.2f (Difference: %.2f)\n",
-            comparison.get("enduranceModifier1"), comparison.get("enduranceModifier2"),
-            comparison.get("enduranceModifierDifference")));
-        
-        // Equipment
-        sb.append("\n=== Equipment ===\n");
-        sb.append("Horse 1: ").append(formatItemList(comparison.get("equipment1"))).append("\n");
-        sb.append("Horse 2: ").append(formatItemList(comparison.get("equipment2"))).append("\n");
-        
-        // Accessories
-        sb.append("\n=== Accessories ===\n");
-        sb.append("Horse 1: ").append(formatItemList(comparison.get("accessories1"))).append("\n");
-        sb.append("Horse 2: ").append(formatItemList(comparison.get("accessories2"))).append("\n");
-        
-        return sb.toString();
+        return s;
     }
-    
-    private static double calculateTotalSpeedModifier(Horse horse) {
-        return horse.getEquipment().stream()
-            .mapToDouble(item -> item.getSpeedModifier())
-            .reduce(1.0, (a, b) -> a * b);
-    }
-    
-    private static double calculateTotalEnduranceModifier(Horse horse) {
-        return horse.getEquipment().stream()
-            .mapToDouble(item -> item.getEnduranceModifier())
-            .reduce(1.0, (a, b) -> a * b);
-    }
-    
+
+
     private static String formatItemList(Object items) {
         if (items == null) return "None";
-        if (items instanceof List<?>) {
-            List<?> itemList = (List<?>) items;
-            if (itemList.isEmpty()) return "None";
-            if (itemList.get(0) instanceof HorseItem) {
-                return itemList.stream()
-                    .map(item -> ((HorseItem) item).getName())
-                    .reduce((a, b) -> a + ", " + b)
-                    .orElse("None");
+        if (!(items instanceof List)) return "None";
+
+        List<?> itemList = (List<?>) items;
+        if (itemList.isEmpty()) return "None";
+        if (!(itemList.get(0) instanceof HorseItem)) return "None";
+
+        StringBuilder result = new StringBuilder();
+        for (Object item : itemList) {
+            HorseItem horseItem = (HorseItem) item;
+            if (!result.isEmpty()) {
+                result.append(", ");
             }
+            result.append(horseItem.getName());
         }
-        return "None";
+        return result.toString();
     }
 } 

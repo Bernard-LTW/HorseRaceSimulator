@@ -1,12 +1,5 @@
 package models;
 
-/**
- * Represents an item (equipment or accessory) that can be equipped to a horse.
- * Equipment affects performance while accessories are purely aesthetic.
- * 
- * @author Tsz Wo Bernard Lee
- * @version 2025-03-16
- */
 public class HorseItem {
     private final String name;
     private final String type; // "Equipment" or "Accessory"
@@ -15,9 +8,7 @@ public class HorseItem {
     private final double confidenceModifier;
     private final String description;
 
-    /**
-     * Constructor for equipment items that affect performance
-     */
+    //Equipment Constructor
     public HorseItem(String name, String type, double speedModifier, 
                     double enduranceModifier, double confidenceModifier, 
                     String description) {
@@ -29,9 +20,7 @@ public class HorseItem {
         this.description = description;
     }
 
-    /**
-     * Constructor for accessory items that are purely aesthetic
-     */
+    //Accessories Constructor(All modifiers set to 1 -> no effect)
     public HorseItem(String name, String type, String description) {
         this.name = name;
         this.type = type;

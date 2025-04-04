@@ -4,9 +4,7 @@ import models.*;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.List;
-import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
 import utils.HorseComparator;
 
@@ -173,9 +171,6 @@ public class StatisticsPanel extends JPanel {
         for (Horse horse : horses) {
             horseSelector.addItem(horse.getName());
         }
-        
-        // Load track records
-        RaceStatistics.loadTrackRecords();
         
         // Update displays
         updateHorseStats();

@@ -4,29 +4,27 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class Transaction {
+    public enum TransactionType {
+        DEPOSIT,
+        BET,
+        WIN
+    }
+
     private LocalDateTime dateTime;
     private TransactionType type;
     private double amount;
     
-    // Constants for date/time formatting
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss");
     
-    public enum TransactionType {
-        DEPOSIT,
-        WITHDRAWAL,
-        BET,
-        WIN
-    }
+
     
-    // Constructor for new transactions
     public Transaction(TransactionType type, double amount) {
         this.dateTime = LocalDateTime.now();
         this.type = type;
         this.amount = amount;
     }
     
-    // Constructor for loading from CSV
     public Transaction(String date, String time, String type, double amount) {
         this.dateTime = LocalDateTime.parse(date + " " + time, 
                 DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
@@ -34,15 +32,14 @@ public class Transaction {
         this.amount = amount;
     }
     
-    // Getters
     public String getDate() {
         return dateTime.format(DATE_FORMATTER);
     }
-    
+
     public String getTime() {
         return dateTime.format(TIME_FORMATTER);
     }
-    
+
     public TransactionType getType() {
         return type;
     }

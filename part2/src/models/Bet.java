@@ -12,7 +12,6 @@ public class Bet {
     private boolean won;
     private double winnings;
     
-    // Constants for date/time formatting
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss");
     
@@ -26,7 +25,6 @@ public class Bet {
         this.winnings = 0.0;
     }
     
-    // Getters
     public String getRaceId() { return raceId; }
     public String getHorseName() { return horseName; }
     public char getHorseSymbol() { return horseSymbol; }
@@ -36,28 +34,14 @@ public class Bet {
     public boolean isWon() { return won; }
     public double getWinnings() { return winnings; }
     
-    // Setters
     public void setWon(boolean won) { this.won = won; }
     public void setWinnings(double winnings) { this.winnings = winnings; }
     
-    // Calculate potential winnings based on odds
     public double calculatePotentialWinnings(double odds) {
         return amount * odds;
     }
-    
-    // Convert to array for table display
-    public Object[] toTableRow() {
-        return new Object[]{
-            getDate(),
-            getTime(),
-            raceId,
-            horseName,
-            amount,
-            won ? "Yes" : "No",
-            winnings
-        };
-    }
-    
+
+
     // Convert to CSV format
     public String toCsvString() {
         return String.format("%s,%s,%s,%s,%c,%.2f,%b,%.2f",
