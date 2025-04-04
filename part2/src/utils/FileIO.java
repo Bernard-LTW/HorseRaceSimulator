@@ -11,7 +11,7 @@ import java.nio.file.*;
 import java.util.*;
 
 public class FileIO {
-    private static final String BASE_PATH = "part2/src/data/";
+    private static final String BASE_PATH = "src/data/";
     private static final String HORSE_CSV_FILE = BASE_PATH + "horses/horses.csv";
     private static final String TRANSACTION_CSV_FILE = BASE_PATH + "bets/transaction.csv";
     private static final String TRACKS_CSV_FILE = BASE_PATH + "tracks/tracks.csv";
