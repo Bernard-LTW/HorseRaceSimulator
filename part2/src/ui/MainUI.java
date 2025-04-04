@@ -2,9 +2,8 @@ package ui;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Arrays;
-import java.util.List;
-import core.BetManager;
+
+import models.BetManager;
 
 public class MainUI extends JFrame {
     

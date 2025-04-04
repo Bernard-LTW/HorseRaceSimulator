@@ -9,10 +9,9 @@ import java.util.List;
 import models.Race;
 import models.Horse;
 import models.Transaction;
-import core.BetManager;
+import models.BetManager;
 import utils.FileIO;
 import utils.BettingOdds;
-import ui.Button;
 
 public class BettingPanel extends JPanel {
     private static final Color BACKGROUND_COLOR = new Color(245, 245, 250);

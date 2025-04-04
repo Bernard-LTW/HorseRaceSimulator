@@ -1,9 +1,5 @@
-package core;
+package models;
 
-import models.Bet;
-import models.Horse;
-import models.Race;
-import models.Transaction;
 import utils.FileIO;
 import java.util.ArrayList;
 import java.util.List;

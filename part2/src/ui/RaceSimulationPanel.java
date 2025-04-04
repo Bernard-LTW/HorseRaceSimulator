@@ -1,7 +1,7 @@
 package ui;
 
 import models.Race;
-import core.BetManager;
+import models.BetManager;
 
 import javax.swing.*;
 import java.awt.*;

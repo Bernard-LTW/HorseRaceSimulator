@@ -4,18 +4,16 @@ import models.Race;
 import models.Horse;
 import models.Track;
 import models.Bet;
-import core.BetManager;
+import models.BetManager;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.geom.AffineTransform;
-import java.net.URL;
 import javax.imageio.ImageIO;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;
-import java.io.File;
 
 public class RaceVisualizationPanel extends JPanel {
     private Race currentRace;
