@@ -2,9 +2,9 @@ package ui;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.List;
-
 
 import models.Race;
 import models.Horse;
@@ -12,8 +12,17 @@ import models.Transaction;
 import core.BetManager;
 import utils.FileIO;
 import utils.BettingOdds;
+import ui.Button;
 
 public class BettingPanel extends JPanel {
+    private static final Color BACKGROUND_COLOR = new Color(245, 245, 250);
+    private static final Color HEADER_COLOR = new Color(60, 60, 70);
+    private static final Color ACCENT_COLOR = new Color(100, 149, 237);
+    private static final Font TITLE_FONT = new Font("Arial", Font.BOLD, 28);
+    private static final Font HEADER_FONT = new Font("Arial", Font.BOLD, 20);
+    private static final Font REGULAR_FONT = new Font("Arial", Font.PLAIN, 14);
+    private static final int PADDING = 20;
+
     private Race currentRace;
     private BetManager betManager;
     private JLabel balanceLabel;
@@ -29,106 +38,176 @@ public class BettingPanel extends JPanel {
     private JButton backButton;
     
     public BettingPanel(BetManager betManager) {
-        setLayout(new BorderLayout());
         this.betManager = betManager;
+        setLayout(new BorderLayout(PADDING, PADDING));
+        setBackground(BACKGROUND_COLOR);
+        setBorder(new EmptyBorder(PADDING, PADDING, PADDING, PADDING));
         
-        JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(new Color(240, 240, 240));
-        headerPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        JPanel headerPanel = createHeaderPanel();
+        add(headerPanel, BorderLayout.NORTH);
+        
+        JPanel contentPanel = createContentPanel();
+        add(contentPanel, BorderLayout.CENTER);
+        
+        JPanel buttonPanel = createButtonPanel();
+        add(buttonPanel, BorderLayout.SOUTH);
+
+        setupActionListeners();
+        
+        updateBalanceFromTransactions();
+    }
+    
+    private JPanel createHeaderPanel() {
+        JPanel headerPanel = new JPanel(new BorderLayout(PADDING, 0));
+        headerPanel.setBackground(BACKGROUND_COLOR);
+        headerPanel.setBorder(new EmptyBorder(0, 0, PADDING, 0));
         
         JLabel titleLabel = new JLabel("Place Your Bets");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        titleLabel.setFont(TITLE_FONT);
+        titleLabel.setForeground(HEADER_COLOR);
         headerPanel.add(titleLabel, BorderLayout.WEST);
         
         balanceLabel = new JLabel("Balance: $0.00");
-        balanceLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        balanceLabel.setFont(HEADER_FONT);
+        balanceLabel.setForeground(HEADER_COLOR);
         headerPanel.add(balanceLabel, BorderLayout.EAST);
         
-        add(headerPanel, BorderLayout.NORTH);
+        return headerPanel;
+    }
+    
+    private JPanel createContentPanel() {
+        JPanel contentPanel = new JPanel(new GridLayout(1, 3, PADDING, 0));
+        contentPanel.setBackground(BACKGROUND_COLOR);
         
-        JPanel contentPanel = new JPanel(new GridLayout(1, 3, 10, 0));
-        contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        
-        JPanel leftPanel = new JPanel(new BorderLayout());
-        leftPanel.setBorder(BorderFactory.createTitledBorder("Selected Horses"));
-        
-        String[] selectedColumns = {"Horse", "Symbol", "Odds", "Bet Amount"};
-        selectedHorsesModel = new DefaultTableModel(selectedColumns, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return column == 3;
-            }
-        };
+        JPanel leftPanel = createTablePanel("Selected Horses", selectedHorsesModel = createSelectedHorsesModel());
         selectedHorsesTable = new JTable(selectedHorsesModel);
-        selectedHorsesTable.getColumnModel().getColumn(0).setPreferredWidth(150);
-        selectedHorsesTable.getColumnModel().getColumn(1).setPreferredWidth(50);
-        selectedHorsesTable.getColumnModel().getColumn(2).setPreferredWidth(100);
-        selectedHorsesTable.getColumnModel().getColumn(3).setPreferredWidth(100);
+        styleTable(selectedHorsesTable);
         leftPanel.add(new JScrollPane(selectedHorsesTable), BorderLayout.CENTER);
         
-        JPanel middlePanel = new JPanel();
-        middlePanel.setLayout(new BoxLayout(middlePanel, BoxLayout.Y_AXIS));
-        middlePanel.setBorder(BorderFactory.createTitledBorder("Bet Controls"));
+        JPanel middlePanel = createBetControlsPanel();
         
-        betAmountField = new JTextField(10);
-        betAmountField.setMaximumSize(new Dimension(150, 30));
-        JLabel betAmountLabel = new JLabel("Bet Amount:");
-        
-        addBetButton = new JButton("Add Bet →");
-        removeBetButton = new JButton("← Remove Bet");
-        
-        middlePanel.add(Box.createVerticalStrut(20));
-        middlePanel.add(betAmountLabel);
-        middlePanel.add(betAmountField);
-        middlePanel.add(Box.createVerticalStrut(10));
-        middlePanel.add(addBetButton);
-        middlePanel.add(Box.createVerticalStrut(10));
-        middlePanel.add(removeBetButton);
-        middlePanel.add(Box.createVerticalGlue());
-        
-        JPanel rightPanel = new JPanel(new BorderLayout());
-        rightPanel.setBorder(BorderFactory.createTitledBorder("Current Bets"));
-        
-        String[] betColumns = {"Horse", "Symbol", "Odds", "Bet Amount", "Potential Win"};
-        currentBetsModel = new DefaultTableModel(betColumns, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
+        JPanel rightPanel = createTablePanel("Current Bets", currentBetsModel = createCurrentBetsModel());
         currentBetsTable = new JTable(currentBetsModel);
-        currentBetsTable.getColumnModel().getColumn(0).setPreferredWidth(150);
-        currentBetsTable.getColumnModel().getColumn(1).setPreferredWidth(50);
-        currentBetsTable.getColumnModel().getColumn(2).setPreferredWidth(100);
-        currentBetsTable.getColumnModel().getColumn(3).setPreferredWidth(100);
-        currentBetsTable.getColumnModel().getColumn(4).setPreferredWidth(100);
+        styleTable(currentBetsTable);
         rightPanel.add(new JScrollPane(currentBetsTable), BorderLayout.CENTER);
         
         contentPanel.add(leftPanel);
         contentPanel.add(middlePanel);
         contentPanel.add(rightPanel);
         
-        add(contentPanel, BorderLayout.CENTER);
+        return contentPanel;
+    }
+    
+    private JPanel createTablePanel(String title, DefaultTableModel model) {
+        JPanel panel = new JPanel(new BorderLayout(0, PADDING));
+        panel.setBackground(BACKGROUND_COLOR);
+        panel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(ACCENT_COLOR, 1),
+            new EmptyBorder(PADDING, PADDING, PADDING, PADDING)
+        ));
         
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        buttonPanel.setBackground(new Color(240, 240, 240));
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(HEADER_FONT);
+        titleLabel.setForeground(HEADER_COLOR);
+        panel.add(titleLabel, BorderLayout.NORTH);
         
-        startRaceButton = new JButton("Start Race");
-        backButton = new JButton("Back");
+        return panel;
+    }
+    
+    private JPanel createBetControlsPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBackground(BACKGROUND_COLOR);
+        panel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(ACCENT_COLOR, 1),
+            new EmptyBorder(PADDING, PADDING, PADDING, PADDING)
+        ));
+        
+        JLabel titleLabel = new JLabel("Bet Controls");
+        titleLabel.setFont(HEADER_FONT);
+        titleLabel.setForeground(HEADER_COLOR);
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(titleLabel);
+        
+        panel.add(Box.createVerticalStrut(PADDING));
+        
+        JLabel betAmountLabel = new JLabel("Bet Amount:");
+        betAmountLabel.setFont(REGULAR_FONT);
+        betAmountLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(betAmountLabel);
+        
+        panel.add(Box.createVerticalStrut(5));
+        
+        betAmountField = new JTextField(10);
+        betAmountField.setMaximumSize(new Dimension(150, 30));
+        betAmountField.setFont(REGULAR_FONT);
+        betAmountField.setHorizontalAlignment(JTextField.CENTER);
+        panel.add(betAmountField);
+        
+        panel.add(Box.createVerticalStrut(PADDING));
+        
+        addBetButton = Button.createStyledButton("Add Bet →");
+        removeBetButton = Button.createStyledButton("← Remove Bet");
+        
+        panel.add(addBetButton);
+        panel.add(Box.createVerticalStrut(10));
+        panel.add(removeBetButton);
+        
+        return panel;
+    }
+    
+    private JPanel createButtonPanel() {
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, PADDING, 0));
+        buttonPanel.setBackground(BACKGROUND_COLOR);
+        buttonPanel.setBorder(new EmptyBorder(PADDING, 0, 0, 0));
+        
+        backButton = Button.createStyledButton("Back");
+        startRaceButton = Button.createStyledButton("Start Race");
         
         buttonPanel.add(backButton);
-        buttonPanel.add(Box.createHorizontalStrut(20));
         buttonPanel.add(startRaceButton);
         
-        add(buttonPanel, BorderLayout.SOUTH);
-        
+        return buttonPanel;
+    }
+    
+    private void styleTable(JTable table) {
+        table.setFont(REGULAR_FONT);
+        table.setRowHeight(25);
+        table.getTableHeader().setFont(REGULAR_FONT);
+        table.getTableHeader().setBackground(ACCENT_COLOR);
+        table.getTableHeader().setForeground(Color.WHITE);
+        table.setSelectionBackground(new Color(230, 230, 250));
+        table.setSelectionForeground(HEADER_COLOR);
+        table.setGridColor(new Color(220, 220, 220));
+        table.setShowVerticalLines(true);
+        table.setShowHorizontalLines(true);
+    }
+    
+    private DefaultTableModel createSelectedHorsesModel() {
+        String[] columns = {"Horse", "Symbol", "Odds", "Bet Amount"};
+        return new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return column == 3;
+            }
+        };
+    }
+    
+    private DefaultTableModel createCurrentBetsModel() {
+        String[] columns = {"Horse", "Symbol", "Odds", "Bet Amount", "Potential Win"};
+        return new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+    }
+    
+    private void setupActionListeners() {
         addBetButton.addActionListener(e -> addSelectedBets());
         removeBetButton.addActionListener(e -> removeSelectedBets());
         startRaceButton.addActionListener(e -> startRace());
         backButton.addActionListener(e -> goBack());
-        
-        updateBalanceFromTransactions();
     }
     
     public void setRace(Race race) {
