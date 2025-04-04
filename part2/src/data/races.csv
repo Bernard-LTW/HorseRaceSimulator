@@ -477,3 +477,21 @@ db3ec472-ffaa-41ff-8675-54fdbd1cfc3d,Tempest,T,0.81,1,9,-1,Oval,DRY
 5afa2923-2e98-4eba-9c49-2407e59b4379,Thunder,T,0.39,20,8,5211,Oval,DRY
 5afa2923-2e98-4eba-9c49-2407e59b4379,Tornado,C,0.76,16,9,-1
 5afa2923-2e98-4eba-9c49-2407e59b4379,Tornado,T,0.76,16,9,-1,Oval,DRY
+8bd14bc6-0d00-489b-958d-ddd1ba5f5ca6,Testing222222,Y,1.00,20,1,2400
+8bd14bc6-0d00-489b-958d-ddd1ba5f5ca6,Testing222222,T,1.00,20,1,2400,Oval,DRY
+8bd14bc6-0d00-489b-958d-ddd1ba5f5ca6,Tempest,G,0.91,20,2,2503
+8bd14bc6-0d00-489b-958d-ddd1ba5f5ca6,Tempest,T,0.91,20,2,2503,Oval,DRY
+8bd14bc6-0d00-489b-958d-ddd1ba5f5ca6,Tornado,C,0.73,20,3,2812
+8bd14bc6-0d00-489b-958d-ddd1ba5f5ca6,Tornado,T,0.73,20,3,2812,Oval,DRY
+8bd14bc6-0d00-489b-958d-ddd1ba5f5ca6,Lightning,B,0.72,20,4,2913
+8bd14bc6-0d00-489b-958d-ddd1ba5f5ca6,Lightning,L,0.72,20,4,2913,Oval,DRY
+8bd14bc6-0d00-489b-958d-ddd1ba5f5ca6,Storm,E,0.65,20,5,3642
+8bd14bc6-0d00-489b-958d-ddd1ba5f5ca6,Storm,S,0.65,20,5,3642,Oval,DRY
+8bd14bc6-0d00-489b-958d-ddd1ba5f5ca6,Thunder,A,0.40,20,6,4055
+8bd14bc6-0d00-489b-958d-ddd1ba5f5ca6,Thunder,T,0.40,20,6,4055,Oval,DRY
+8bd14bc6-0d00-489b-958d-ddd1ba5f5ca6,Testing Boi,H,0.52,20,7,4055
+8bd14bc6-0d00-489b-958d-ddd1ba5f5ca6,Testing Boi,T,0.52,20,7,4055,Oval,DRY
+8bd14bc6-0d00-489b-958d-ddd1ba5f5ca6,Blizzard,D,0.44,20,8,6030
+8bd14bc6-0d00-489b-958d-ddd1ba5f5ca6,Blizzard,B,0.44,20,8,6030,Oval,DRY
+8bd14bc6-0d00-489b-958d-ddd1ba5f5ca6,Whirlwind,F,0.75,1,9,-1
+8bd14bc6-0d00-489b-958d-ddd1ba5f5ca6,Whirlwind,W,0.75,1,9,-1,Oval,DRY

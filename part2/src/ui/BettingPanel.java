@@ -3,18 +3,11 @@ package ui;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
+
 
 import models.Race;
 import models.Horse;
-import models.Bet;
 import models.Transaction;
 import core.BetManager;
 import utils.FileIO;
@@ -39,7 +32,6 @@ public class BettingPanel extends JPanel {
         setLayout(new BorderLayout());
         this.betManager = betManager;
         
-        // Create header panel
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBackground(new Color(240, 240, 240));
         headerPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -54,20 +46,17 @@ public class BettingPanel extends JPanel {
         
         add(headerPanel, BorderLayout.NORTH);
         
-        // Create main content panel with three columns
         JPanel contentPanel = new JPanel(new GridLayout(1, 3, 10, 0));
         contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         
-        // Left panel - Selected Horses
         JPanel leftPanel = new JPanel(new BorderLayout());
         leftPanel.setBorder(BorderFactory.createTitledBorder("Selected Horses"));
         
-        // Create table model for selected horses
         String[] selectedColumns = {"Horse", "Symbol", "Odds", "Bet Amount"};
         selectedHorsesModel = new DefaultTableModel(selectedColumns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 3; // Only bet amount column is editable
+                return column == 3;
             }
         };
         selectedHorsesTable = new JTable(selectedHorsesModel);
@@ -77,7 +66,6 @@ public class BettingPanel extends JPanel {
         selectedHorsesTable.getColumnModel().getColumn(3).setPreferredWidth(100);
         leftPanel.add(new JScrollPane(selectedHorsesTable), BorderLayout.CENTER);
         
-        // Middle panel - Bet Controls
         JPanel middlePanel = new JPanel();
         middlePanel.setLayout(new BoxLayout(middlePanel, BoxLayout.Y_AXIS));
         middlePanel.setBorder(BorderFactory.createTitledBorder("Bet Controls"));
@@ -98,16 +86,14 @@ public class BettingPanel extends JPanel {
         middlePanel.add(removeBetButton);
         middlePanel.add(Box.createVerticalGlue());
         
-        // Right panel - Current Bets
         JPanel rightPanel = new JPanel(new BorderLayout());
         rightPanel.setBorder(BorderFactory.createTitledBorder("Current Bets"));
         
-        // Create table model for current bets
         String[] betColumns = {"Horse", "Symbol", "Odds", "Bet Amount", "Potential Win"};
         currentBetsModel = new DefaultTableModel(betColumns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // No cells are editable
+                return false;
             }
         };
         currentBetsTable = new JTable(currentBetsModel);
@@ -124,7 +110,6 @@ public class BettingPanel extends JPanel {
         
         add(contentPanel, BorderLayout.CENTER);
         
-        // Create button panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         buttonPanel.setBackground(new Color(240, 240, 240));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -138,13 +123,11 @@ public class BettingPanel extends JPanel {
         
         add(buttonPanel, BorderLayout.SOUTH);
         
-        // Add action listeners
         addBetButton.addActionListener(e -> addSelectedBets());
         removeBetButton.addActionListener(e -> removeSelectedBets());
         startRaceButton.addActionListener(e -> startRace());
         backButton.addActionListener(e -> goBack());
         
-        // Initialize balance
         updateBalanceFromTransactions();
     }
     
@@ -153,7 +136,6 @@ public class BettingPanel extends JPanel {
         selectedHorsesModel.setRowCount(0);
         currentBetsModel.setRowCount(0);
         
-        // Add horses to selected horses table with odds
         for (Horse horse : race.getLanes()) {
             if (horse != null) {
                 double odds = BettingOdds.calculateOdds(horse, race.getTrack());
@@ -186,20 +168,16 @@ public class BettingPanel extends JPanel {
                 return;
             }
             
-            // Get selected rows
             int[] selectedRows = selectedHorsesTable.getSelectedRows();
             if (selectedRows.length == 0) {
                 showError("Please select at least one horse");
                 return;
             }
             
-            // Move selected horses to current bets
             for (int row : selectedRows) {
                 String horseName = (String) selectedHorsesModel.getValueAt(row, 0);
                 String symbol = (String) selectedHorsesModel.getValueAt(row, 1);
-                // String oddsStr = (String) selectedHorsesModel.getValueAt(row, 2);
-                
-                // Find the horse object
+
                 Horse horse = null;
                 for (Horse h : currentRace.getLanes()) {
                     if (h.getName().equals(horseName) && String.valueOf(h.getSymbol()).equals(symbol)) {
@@ -209,11 +187,9 @@ public class BettingPanel extends JPanel {
                 }
                 
                 if (horse != null) {
-                    // Calculate odds and potential winnings
                     double odds = BettingOdds.calculateOdds(horse, currentRace.getTrack());
                     double potentialWin = BettingOdds.calculatePotentialWinnings(betAmount, odds);
                     
-                    // Add to current bets
                     currentBetsModel.addRow(new Object[]{
                         horseName,
                         symbol,
@@ -222,7 +198,6 @@ public class BettingPanel extends JPanel {
                         String.format("$%.2f", potentialWin)
                     });
                     
-                    // Remove from selected horses
                     selectedHorsesModel.removeRow(row);
                 }
             }
@@ -233,20 +208,17 @@ public class BettingPanel extends JPanel {
     }
     
     private void removeSelectedBets() {
-        // Get selected rows
         int[] selectedRows = currentBetsTable.getSelectedRows();
         if (selectedRows.length == 0) {
             showError("Please select at least one bet to remove");
             return;
         }
         
-        // Move selected bets back to selected horses
         for (int row : selectedRows) {
             String horseName = (String) currentBetsModel.getValueAt(row, 0);
             String symbol = (String) currentBetsModel.getValueAt(row, 1);
             String oddsStr = (String) currentBetsModel.getValueAt(row, 2);
             
-            // Find the horse object
             Horse horse = null;
             for (Horse h : currentRace.getLanes()) {
                 if (h.getName().equals(horseName) && String.valueOf(h.getSymbol()).equals(symbol)) {
@@ -256,7 +228,6 @@ public class BettingPanel extends JPanel {
             }
             
             if (horse != null) {
-                // Add back to selected horses
                 selectedHorsesModel.addRow(new Object[]{
                     horseName,
                     symbol,
@@ -264,19 +235,17 @@ public class BettingPanel extends JPanel {
                     ""
                 });
                 
-                // Remove from current bets
                 currentBetsModel.removeRow(row);
             }
         }
     }
     
     private void startRace() {
-        // Calculate total bet amount
         double totalBetAmount = 0.0;
         for (int row = 0; row < currentBetsModel.getRowCount(); row++) {
             String amountStr = ((String) currentBetsModel.getValueAt(row, 3))
-                .replace("$", "")  // Remove dollar sign
-                .replace(",", ""); // Remove commas
+                .replace("$", "")
+                .replace(",", "");
             try {
                 totalBetAmount += Double.parseDouble(amountStr);
             } catch (NumberFormatException e) {
@@ -285,21 +254,18 @@ public class BettingPanel extends JPanel {
             }
         }
         
-        // Update balance only if there are bets
         if (totalBetAmount > 0) {
             currentBalance -= totalBetAmount;
             updateBalanceLabel();
         }
         
-        // Place all current bets
         for (int row = 0; row < currentBetsModel.getRowCount(); row++) {
             String horseName = (String) currentBetsModel.getValueAt(row, 0);
             String symbol = (String) currentBetsModel.getValueAt(row, 1);
             String amountStr = ((String) currentBetsModel.getValueAt(row, 3))
-                .replace("$", "")  // Remove dollar sign
-                .replace(",", ""); // Remove commas
+                .replace("$", "")
+                .replace(",", "");
             
-            // Find the horse object
             Horse horse = null;
             for (Horse h : currentRace.getLanes()) {
                 if (h.getName().equals(horseName) && String.valueOf(h.getSymbol()).equals(symbol)) {
@@ -324,9 +290,8 @@ public class BettingPanel extends JPanel {
             }
         }
         
-        // Switch to race simulation panel
         CardLayout cardLayout = (CardLayout) getParent().getLayout();
-        RaceSimulationPanel raceSimPanel = (RaceSimulationPanel) getParent().getComponent(5); // Index of RACE_SIMULATION panel
+        RaceSimulationPanel raceSimPanel = (RaceSimulationPanel) getParent().getComponent(5);
         raceSimPanel.setRace(currentRace);
         raceSimPanel.startRace(currentRace);
         cardLayout.show(getParent(), "RACE_SIMULATION");

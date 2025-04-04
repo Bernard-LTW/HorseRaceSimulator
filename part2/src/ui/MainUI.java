@@ -17,7 +17,6 @@ public class MainUI extends JFrame {
         
         BetManager betManager = new BetManager();
         
-        // Create panels
         MainPanel mainPanel = new MainPanel();
         TransactionPanel transactionPanel = new TransactionPanel();
         NewRacePanel newRacePanel = new NewRacePanel();
@@ -27,7 +26,6 @@ public class MainUI extends JFrame {
         HorseCustomizerPanel horseCustomizerPanel = new HorseCustomizerPanel();
         StatisticsPanel statisticsPanel = new StatisticsPanel();
         
-        // Add panels to card layout
         mainContainer.add(mainPanel, "MAIN");
         mainContainer.add(transactionPanel, "TRANSACTIONS");
         mainContainer.add(newRacePanel, "RACE_SETUP");
@@ -36,19 +34,13 @@ public class MainUI extends JFrame {
         mainContainer.add(raceSimulationPanel, "RACE_SIMULATION");
         mainContainer.add(horseCustomizerPanel, "HORSE_CUSTOMIZER");
         mainContainer.add(statisticsPanel, "STATISTICS");
-        
-        // Add container to frame
+
         add(mainContainer);
-        
-        // Center the frame on screen
         setLocationRelativeTo(null);
     }
     
     public static void main(String[] args) {
-        // Run the GUI in the Event Dispatch Thread
-        SwingUtilities.invokeLater(() -> {
-            MainUI frame = new MainUI();
-            frame.setVisible(true);
-        });
+        MainUI frame = new MainUI();
+        frame.setVisible(true);
     }
 }

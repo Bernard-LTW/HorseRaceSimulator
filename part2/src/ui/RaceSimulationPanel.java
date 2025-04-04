@@ -1,14 +1,13 @@
 package ui;
 
 import models.Race;
-import models.Horse;
-import models.Bet;
 import core.BetManager;
-import models.Track;
+
 import javax.swing.*;
 import java.awt.*;
-import java.util.List;
-import java.util.Map;
+
+import static ui.Button.createStyledButton;
+
 
 public class RaceSimulationPanel extends JPanel {
     private RaceVisualizationPanel visualPanel;
@@ -20,22 +19,19 @@ public class RaceSimulationPanel extends JPanel {
         setBackground(new Color(70, 130, 180));
         this.betManager = betManager;
 
-        // Main content panel
         JPanel contentPanel = new JPanel(new BorderLayout(10, 10));
         contentPanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 20, 20));
         contentPanel.setBackground(Color.WHITE);
 
-        // Create visual race panel
         visualPanel = new RaceVisualizationPanel(betManager);
         contentPanel.add(visualPanel, BorderLayout.CENTER);
 
         add(contentPanel, BorderLayout.CENTER);
 
-        // Create button panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         buttonPanel.setBackground(Color.WHITE);
 
-        JButton backButton = new JButton("Back to Main Menu");
+        JButton backButton = createStyledButton("Back to Main Menu");
         backButton.addActionListener(e -> goBack());
         buttonPanel.add(backButton);
 
@@ -49,9 +45,7 @@ public class RaceSimulationPanel extends JPanel {
 
     public void startRace(Race race) {
         if (race != null) {
-            // Start the visual race
             visualPanel.startRace();
-            
             new Thread(() -> {
                 race.startRace();
                 SwingUtilities.invokeLater(() -> {

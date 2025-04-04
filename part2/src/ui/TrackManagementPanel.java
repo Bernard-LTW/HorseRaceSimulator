@@ -6,7 +6,8 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
-import java.util.ArrayList;
+
+import static ui.Button.createStyledButton;
 
 public class TrackManagementPanel extends JPanel {
     private DefaultTableModel tableModel;
@@ -17,7 +18,6 @@ public class TrackManagementPanel extends JPanel {
         setLayout(new BorderLayout(10, 20));
         setBackground(new Color(70, 130, 180));
         
-        // Header
         JPanel headerPanel = new JPanel(new BorderLayout(0, 15));
         headerPanel.setBorder(BorderFactory.createEmptyBorder(30, 20, 20, 20));
         headerPanel.setBackground(new Color(70, 130, 180));
@@ -29,12 +29,10 @@ public class TrackManagementPanel extends JPanel {
         
         add(headerPanel, BorderLayout.NORTH);
         
-        // Main content panel
         JPanel contentPanel = new JPanel(new BorderLayout(10, 10));
         contentPanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 20, 20));
         contentPanel.setBackground(Color.WHITE);
         
-        // Create table
         String[] columns = {"Name", "Length", "Shape"};
         tableModel = new DefaultTableModel(columns, 0);
         trackTable = new JTable(tableModel);
@@ -43,7 +41,6 @@ public class TrackManagementPanel extends JPanel {
         JScrollPane scrollPane = new JScrollPane(trackTable);
         contentPanel.add(scrollPane, BorderLayout.CENTER);
         
-        // Buttons panel
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         buttonsPanel.setBackground(Color.WHITE);
         
@@ -62,36 +59,7 @@ public class TrackManagementPanel extends JPanel {
         contentPanel.add(buttonsPanel, BorderLayout.SOUTH);
         add(contentPanel, BorderLayout.CENTER);
         
-        // Load existing tracks
         loadTracks();
-    }
-    
-    private JButton createStyledButton(String text) {
-        JButton button = new JButton(text);
-        button.setFont(new Font("Arial", Font.BOLD, 14));
-        button.setPreferredSize(new Dimension(150, 35));
-        button.setBackground(new Color(41, 128, 185));  // Darker blue for better contrast
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setBorderPainted(true);
-        button.setBorder(BorderFactory.createLineBorder(new Color(52, 152, 219), 2));
-        button.setOpaque(true);
-        button.setContentAreaFilled(true);  // Ensure the button background is filled
-
-        // Add hover effect
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(new Color(52, 152, 219));  // Lighter blue on hover
-                button.setBorder(BorderFactory.createLineBorder(new Color(133, 193, 233), 2));
-            }
-
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(new Color(41, 128, 185));  // Back to darker blue
-                button.setBorder(BorderFactory.createLineBorder(new Color(52, 152, 219), 2));
-            }
-        });
-
-        return button;
     }
     
     private void loadTracks() {
@@ -138,10 +106,10 @@ public class TrackManagementPanel extends JPanel {
             
             Track newTrack = new Track(
                 nameField.getText().trim(),
-                3,  // Default lane count
+                3,
                 (int)lengthSpinner.getValue(),
                 (Track.TrackShape)shapeBox.getSelectedItem(),
-                Track.TrackCondition.DRY  // Default condition
+                Track.TrackCondition.DRY
             );
             tracks.add(newTrack);
             FileIO.saveTracks(tracks);

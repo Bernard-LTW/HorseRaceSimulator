@@ -24,15 +24,14 @@ public class RaceVisualizationPanel extends JPanel {
     private Map<Horse, Integer> currentFrameIndices;
     private BufferedImage trackBackground;
     private Timer animationTimer;
-    private final int TRACK_HEIGHT = 600; // Increased track height
-    private final int VERTICAL_SPACING = 25; // Reduced top spacing
-    private final int START_X = 50; // Starting X position
-    private final int ANIMATION_DELAY = 100; // Milliseconds between frame updates
+    private final int TRACK_HEIGHT = 600;
+    private final int VERTICAL_SPACING = 25;
+    private final int START_X = 50;
+    private final int ANIMATION_DELAY = 100;
     private final Font nameFont = new Font("Arial", Font.BOLD, 12);
     private final Font trackInfoFont = new Font("Arial", Font.BOLD, 14);
-    private final Color GRASS_COLOR = new Color(76, 175, 80); // Lighter forest green
-//    private final Color TRACK_COLOR = new Color(129, 199, 132); // Lighter track green
-    private final float TRACK_THICKNESS = 1.5f; // Thinner track lines
+    private final Color GRASS_COLOR = new Color(76, 175, 80);
+    private final float TRACK_THICKNESS = 1.5f;
     private BetManager betManager;
 
     public RaceVisualizationPanel(BetManager betManager) {
@@ -43,10 +42,8 @@ public class RaceVisualizationPanel extends JPanel {
         currentFrameIndices = new HashMap<>();
         this.betManager = betManager;
         
-        // Create track background
         createTrackBackground();
 
-        // Initialize animation timer
         animationTimer = new Timer(ANIMATION_DELAY, e -> {
             updatePositions();
             updateAnimationFrames();
@@ -65,9 +62,8 @@ public class RaceVisualizationPanel extends JPanel {
     private int calculateHorseSize() {
         if (currentRace == null) return 64;
         int numHorses = currentRace.getLanes().length;
-        // Calculate horse size based on track height and number of horses
-        int maxSize = 64; // Maximum horse size
-        int minSize = 32; // Minimum horse size
+        int maxSize = 64;
+        int minSize = 32;
         int calculatedSize = (TRACK_HEIGHT - (2 * VERTICAL_SPACING)) / (numHorses * 2);
         return Math.max(minSize, Math.min(maxSize, calculatedSize));
     }
@@ -78,7 +74,6 @@ public class RaceVisualizationPanel extends JPanel {
             for (int i = 0; i < 5; i++) {
                 String framePath = "/images/frame_" + String.format("%03d", i) + ".png";
                 BufferedImage frame = ImageIO.read(getClass().getResource(framePath));
-                // Scale the frame to the calculated size
                 int size = calculateHorseSize();
                 BufferedImage scaledFrame = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
                 Graphics2D g2d = scaledFrame.createGraphics();
@@ -91,26 +86,8 @@ public class RaceVisualizationPanel extends JPanel {
             currentFrameIndices.put(horse, 0);
         } catch (Exception e) {
             System.err.println("Error loading horse frames: " + e.getMessage());
-//            createDefaultHorseFrame(horse);
         }
     }
-
-//    private void createDefaultHorseFrame(Horse horse) {
-//        int size = calculateHorseSize();
-//        BufferedImage defaultFrame = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
-//        Graphics2D g2d = defaultFrame.createGraphics();
-//        g2d.setColor(new Color(
-//            (int)(Math.random() * 256),
-//            (int)(Math.random() * 256),
-//            (int)(Math.random() * 256)
-//        ));
-//        g2d.fillRect(0, 0, size, size);
-//        g2d.dispose();
-//        List<BufferedImage> frames = new ArrayList<>();
-//        frames.add(defaultFrame);
-//        horseFrames.put(horse, frames);
-//        currentFrameIndices.put(horse, 0);
-//    }
 
     private void updateAnimationFrames() {
         for (Horse horse : horseFrames.keySet()) {
@@ -146,10 +123,8 @@ public class RaceVisualizationPanel extends JPanel {
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         
-        // Draw track background
         g2d.drawImage(trackBackground, 0, 0, getWidth(), TRACK_HEIGHT, null);
         
-        // Draw track info
         Track track = currentRace.getTrack();
         g2d.setFont(trackInfoFont);
         g2d.setColor(Color.WHITE);
@@ -159,8 +134,7 @@ public class RaceVisualizationPanel extends JPanel {
             track.getCondition());
         g2d.drawString(trackInfo, START_X, 20);
         
-        // Draw lane dividers
-        g2d.setColor(Color.WHITE); // Changed to white lines
+        g2d.setColor(Color.WHITE);
         g2d.setStroke(new BasicStroke(TRACK_THICKNESS));
         int numLanes = currentRace.getLanes().length;
         int laneHeight = (TRACK_HEIGHT - (2 * VERTICAL_SPACING)) / Math.max(1, numLanes);
@@ -170,13 +144,11 @@ public class RaceVisualizationPanel extends JPanel {
             g2d.drawLine(START_X, y, getWidth() - START_X, y);
         }
         
-        // Draw finish line
         g2d.setColor(Color.WHITE);
         int finishX = getWidth() - START_X - 10;
         g2d.setStroke(new BasicStroke(2));
         g2d.drawLine(finishX, VERTICAL_SPACING - 10, finishX, TRACK_HEIGHT - VERTICAL_SPACING + 10);
         
-        // Draw horses and their names
         int horseSize = calculateHorseSize();
         for (Horse horse : horsePositions.keySet()) {
             Point pos = horsePositions.get(horse);
@@ -186,22 +158,17 @@ public class RaceVisualizationPanel extends JPanel {
             if (frames != null && !frames.isEmpty()) {
                 BufferedImage currentSprite = frames.get(currentFrame);
                 
-                // Create transform for the horse
                 AffineTransform transform = new AffineTransform();
                 transform.translate(pos.x + horseSize, pos.y); // Move to position + width
                 transform.scale(-1, 1); // Mirror horizontally
                 
-                // If horse has fallen, rotate 180 degrees around center
                 if (horse.hasFallen()) {
                     transform.rotate(Math.PI, horseSize / 2.0, horseSize / 2.0);
                 }
                 
-                // Draw the horse
                 g2d.drawImage(currentSprite, transform, null);
                 
-                // Draw horse name
                 g2d.setFont(nameFont);
-                // Adjust name position based on horse orientation
                 if (horse.hasFallen()) {
                     g2d.setColor(Color.RED);
                     g2d.drawString(horse.getName(), pos.x + horseSize + 5, pos.y + horseSize/2);
@@ -241,7 +208,6 @@ public class RaceVisualizationPanel extends JPanel {
         
         if (allFinished) {
             animationTimer.stop();
-            // showRaceResults(currentRace);
         }
     }
 
@@ -254,7 +220,6 @@ public class RaceVisualizationPanel extends JPanel {
         summary.append("<p>Race ID: ").append(race.getRaceID()).append("</p>");
         summary.append("<p>Winner: ").append(race.getFinishOrder().get(0).getName()).append("</p>");
         
-        // Add confidence changes section
         summary.append("<br><h3>Confidence Changes:</h3>");
         summary.append("<table style='width:100%'>");
         summary.append("<tr><th>Horse</th><th>Change</th></tr>");

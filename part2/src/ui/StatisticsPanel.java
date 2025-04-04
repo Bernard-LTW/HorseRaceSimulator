@@ -8,6 +8,8 @@ import java.util.List;
 import javax.swing.table.DefaultTableModel;
 import utils.HorseComparator;
 
+import static ui.Button.createStyledButton;
+
 public class StatisticsPanel extends JPanel {
     private JTabbedPane tabbedPane;
     private JPanel horseStatsPanel;
@@ -20,7 +22,6 @@ public class StatisticsPanel extends JPanel {
         setLayout(new BorderLayout(10, 10));
         setBackground(new Color(70, 130, 180));
         
-        // Header
         JPanel headerPanel = new JPanel(new BorderLayout(0, 15));
         headerPanel.setBorder(BorderFactory.createEmptyBorder(30, 20, 20, 20));
         headerPanel.setBackground(new Color(70, 130, 180));
@@ -32,23 +33,19 @@ public class StatisticsPanel extends JPanel {
         
         add(headerPanel, BorderLayout.NORTH);
         
-        // Main content
         tabbedPane = new JTabbedPane();
         tabbedPane.setFont(new Font("Arial", Font.BOLD, 14));
         
-        // Create panels for each tab
         horseStatsPanel = createHorseStatsPanel();
         trackRecordsPanel = createTrackRecordsPanel();
         bettingStatsPanel = createBettingStatsPanel();
         
-        // Add tabs
         tabbedPane.addTab("Horse Statistics", horseStatsPanel);
         tabbedPane.addTab("Track Records", trackRecordsPanel);
         tabbedPane.addTab("Betting Analytics", bettingStatsPanel);
         
         add(tabbedPane, BorderLayout.CENTER);
         
-        // Button panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         buttonPanel.setBackground(Color.WHITE);
         
@@ -63,7 +60,6 @@ public class StatisticsPanel extends JPanel {
         
         add(buttonPanel, BorderLayout.SOUTH);
         
-        // Load initial data
         refreshData();
     }
     
@@ -72,7 +68,6 @@ public class StatisticsPanel extends JPanel {
         panel.setBackground(Color.WHITE);
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         
-        // Horse selector
         JPanel selectorPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         selectorPanel.setBackground(Color.WHITE);
         
@@ -85,11 +80,9 @@ public class StatisticsPanel extends JPanel {
         selectorPanel.add(horseLabel);
         selectorPanel.add(horseSelector);
         
-        // Stats display
         JPanel statsPanel = new JPanel(new GridLayout(0, 2, 20, 10));
         statsPanel.setBackground(Color.WHITE);
         
-        // Add stats labels
         String[] statLabels = {
             "Total Races:", "Wins:", "Win Rate:", "Average Confidence:",
             "Average Speed:", "Best Speed:", "Worst Speed:"
@@ -113,7 +106,6 @@ public class StatisticsPanel extends JPanel {
         panel.setBackground(Color.WHITE);
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         
-        // Create table model for track records
         String[] columns = {"Track Name", "Best Time (ms)", "Best Horse"};
         DefaultTableModel model = new DefaultTableModel(columns, 0) {
             @Override
@@ -128,12 +120,10 @@ public class StatisticsPanel extends JPanel {
         recordsTable.setRowHeight(25);
         recordsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         
-        // Set column widths
         recordsTable.getColumnModel().getColumn(0).setPreferredWidth(150);  // Track Name
         recordsTable.getColumnModel().getColumn(1).setPreferredWidth(120);  // Best Time
         recordsTable.getColumnModel().getColumn(2).setPreferredWidth(150);  // Best Horse
         
-        // Add scroll pane
         JScrollPane scrollPane = new JScrollPane(recordsTable);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
         scrollPane.getViewport().setBackground(Color.WHITE);
@@ -148,7 +138,6 @@ public class StatisticsPanel extends JPanel {
         panel.setBackground(Color.WHITE);
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         
-        // Add betting stats labels
         String[] statLabels = {
             "Total Bets:", "Winning Bets:", "Win Rate:", "Total Bet Amount:",
             "Total Winnings:", "Profit/Loss:", "ROI:"
@@ -165,14 +154,12 @@ public class StatisticsPanel extends JPanel {
     }
     
     private void refreshData() {
-        // Load horses
         Horse[] horses = utils.FileIO.ingestHorses();
         horseSelector.removeAllItems();
         for (Horse horse : horses) {
             horseSelector.addItem(horse.getName());
         }
         
-        // Update displays
         updateHorseStats();
         updateTrackRecords();
         updateBettingStats();
@@ -184,7 +171,6 @@ public class StatisticsPanel extends JPanel {
         
         Map<String, Object> stats = RaceStatistics.getHorseStats(selectedHorse);
         
-        // Update stats display
         JPanel statsPanel = (JPanel) ((JScrollPane) horseStatsPanel.getComponent(1)).getViewport().getView();
         Component[] components = statsPanel.getComponents();
         
@@ -219,14 +205,11 @@ public class StatisticsPanel extends JPanel {
     }
     
     private void updateTrackRecords() {
-        // Get the table from the track records panel
         JTable recordsTable = (JTable) ((JScrollPane) trackRecordsPanel.getComponent(0)).getViewport().getView();
         DefaultTableModel model = (DefaultTableModel) recordsTable.getModel();
         
-        // Clear existing rows
         model.setRowCount(0);
         
-        // Load tracks and add their records to the table
         List<Track> tracks = utils.FileIO.loadTracks();
         for (Track track : tracks) {
             model.addRow(new Object[]{
@@ -240,7 +223,6 @@ public class StatisticsPanel extends JPanel {
     private void updateBettingStats() {
         Map<String, Object> stats = RaceStatistics.getBettingStats();
         
-        // Update stats display
         Component[] components = bettingStatsPanel.getComponents();
         
         for (int i = 0; i < components.length; i += 2) {
@@ -289,7 +271,6 @@ public class StatisticsPanel extends JPanel {
         dialog.setBackground(Color.WHITE);
         dialog.setSize(500, 300);
         
-        // Create horse selectors
         JPanel selectorsPanel = new JPanel(new GridLayout(2, 2, 10, 10));
         selectorsPanel.setBackground(Color.WHITE);
         selectorsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -300,15 +281,12 @@ public class StatisticsPanel extends JPanel {
         JComboBox<String> horse1Selector = new JComboBox<>(horse1Model);
         JComboBox<String> horse2Selector = new JComboBox<>(horse2Model);
         
-        // Add items to first selector
         for (Horse horse : horses) {
             horse1Model.addElement(horse.getName());
         }
         
-        // Add items to second selector (excluding the first selected horse)
         updateHorse2Selector(horse2Model, horses, (String) horse1Selector.getSelectedItem());
         
-        // Add listener to update second selector when first selection changes
         horse1Selector.addActionListener(e -> {
             String selected = (String) horse1Selector.getSelectedItem();
             updateHorse2Selector(horse2Model, horses, selected);
@@ -319,7 +297,6 @@ public class StatisticsPanel extends JPanel {
         selectorsPanel.add(new JLabel("Second Horse:"));
         selectorsPanel.add(horse2Selector);
         
-        // Create button panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         buttonPanel.setBackground(Color.WHITE);
         JButton compareBtn = createStyledButton("Compare");
@@ -374,17 +351,14 @@ public class StatisticsPanel extends JPanel {
         dialog.setBackground(Color.WHITE);
         dialog.setSize(600, 400);
         
-        // Create text area for results
         JTextArea resultsArea = new JTextArea();
         resultsArea.setEditable(false);
         resultsArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
         resultsArea.setBackground(Color.WHITE);
         resultsArea.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         
-        // Add results to text area
         resultsArea.setText(HorseComparator.formatComparison(comparison));
         
-        // Create button panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         buttonPanel.setBackground(Color.WHITE);
         JButton closeBtn = createStyledButton("Close");
@@ -398,30 +372,7 @@ public class StatisticsPanel extends JPanel {
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
     }
-    
-    private JButton createStyledButton(String text) {
-        JButton button = new JButton(text);
-        button.setFont(new Font("Arial", Font.BOLD, 14));
-        button.setBackground(new Color(70, 130, 180));
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setBorderPainted(false);
-        button.setOpaque(true);
 
-        // Add hover effect
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(new Color(100, 149, 237));
-            }
-
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(new Color(70, 130, 180));
-            }
-        });
-
-        return button;
-    }
-    
     private void goBack() {
         CardLayout cardLayout = (CardLayout) getParent().getLayout();
         cardLayout.show(getParent(), "MAIN");

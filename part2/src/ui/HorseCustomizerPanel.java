@@ -7,10 +7,10 @@ import utils.FileIO;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+
+import static ui.Button.createStyledButton;
 
 public class HorseCustomizerPanel extends JPanel {
     private JTable horseTable;
@@ -24,18 +24,14 @@ public class HorseCustomizerPanel extends JPanel {
         setLayout(new BorderLayout(10, 20));
         setBackground(new Color(70, 130, 180));
         
-        // Load horses
         horses = new ArrayList<>(List.of(FileIO.ingestHorses()));
-        
-        // Create header panel
+
         JPanel headerPanel = createHeaderPanel();
         add(headerPanel, BorderLayout.NORTH);
-        
-        // Create main content panel
+
         JPanel contentPanel = createContentPanel();
         add(contentPanel, BorderLayout.CENTER);
-        
-        // Create button panel
+
         JPanel buttonPanel = createButtonPanel();
         add(buttonPanel, BorderLayout.SOUTH);
     }
@@ -58,7 +54,6 @@ public class HorseCustomizerPanel extends JPanel {
         contentPanel.setBackground(Color.WHITE);
         contentPanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 20, 20));
 
-        // Create table model with all columns
         String[] columns = {"Name", "Symbol", "Breed", "Coat Color", "Confidence", "Equipment", "Accessories"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
@@ -67,7 +62,6 @@ public class HorseCustomizerPanel extends JPanel {
             }
         };
 
-        // Create table
         horseTable = new JTable(tableModel);
         horseTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         horseTable.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -81,7 +75,6 @@ public class HorseCustomizerPanel extends JPanel {
         horseTable.setSelectionBackground(new Color(230, 240, 250));
         horseTable.setSelectionForeground(Color.BLACK);
 
-        // Set column widths
         horseTable.getColumnModel().getColumn(0).setPreferredWidth(100); // Name
         horseTable.getColumnModel().getColumn(1).setPreferredWidth(50);  // Symbol
         horseTable.getColumnModel().getColumn(2).setPreferredWidth(100); // Breed
@@ -90,13 +83,11 @@ public class HorseCustomizerPanel extends JPanel {
         horseTable.getColumnModel().getColumn(5).setPreferredWidth(150); // Equipment
         horseTable.getColumnModel().getColumn(6).setPreferredWidth(150); // Accessories
 
-        // Add scroll pane
         JScrollPane scrollPane = new JScrollPane(horseTable);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
         scrollPane.getViewport().setBackground(Color.WHITE);
         contentPanel.add(scrollPane, BorderLayout.CENTER);
 
-        // Populate table
         updateHorseTable();
 
         return contentPanel;
@@ -107,18 +98,14 @@ public class HorseCustomizerPanel extends JPanel {
         buttonPanel.setBackground(Color.WHITE);
 
         createHorseBtn = createStyledButton("Create New Horse");
-        // editHorseBtn = createStyledButton("Edit Selected Horse");
         customizeEquipmentBtn = createStyledButton("Customize Equipment");
         backButton = createStyledButton("Back");
 
         buttonPanel.add(createHorseBtn);
-        // buttonPanel.add(editHorseBtn);
         buttonPanel.add(customizeEquipmentBtn);
         buttonPanel.add(backButton);
 
-        // Add action listeners
         createHorseBtn.addActionListener(e -> showCreateHorseDialog());
-        // editHorseBtn.addActionListener(e -> showEditHorseDialog());
         customizeEquipmentBtn.addActionListener(e -> showEquipmentCustomizer());
         backButton.addActionListener(e -> goBack());
 
@@ -131,7 +118,6 @@ public class HorseCustomizerPanel extends JPanel {
         dialog.setBackground(Color.WHITE);
         dialog.setSize(400, 300);
 
-        // Create input panel
         JPanel inputPanel = new JPanel(new GridLayout(4, 2, 5, 5));
         inputPanel.setBackground(Color.WHITE);
         inputPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -150,7 +136,6 @@ public class HorseCustomizerPanel extends JPanel {
         inputPanel.add(new JLabel("Symbol:"));
         inputPanel.add(symbolField);
 
-        // Create button panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         buttonPanel.setBackground(Color.WHITE);
         JButton createBtn = createStyledButton("Create");
@@ -173,7 +158,7 @@ public class HorseCustomizerPanel extends JPanel {
             Horse newHorse = new Horse(
                 symbol.charAt(0),
                 name,
-                1.0, // default confidence
+                0.5,
                 breed,
                 coatColor
             );
@@ -196,7 +181,6 @@ public class HorseCustomizerPanel extends JPanel {
         dialog.setVisible(true);
     }
 
-
     private void showEquipmentCustomizer() {
         int selectedRow = horseTable.getSelectedRow();
         if (selectedRow == -1) {
@@ -214,12 +198,10 @@ public class HorseCustomizerPanel extends JPanel {
         dialog.setBackground(Color.WHITE);
         dialog.setSize(600, 400);
 
-        // Create main content panel
         JPanel contentPanel = new JPanel(new BorderLayout(10, 10));
         contentPanel.setBackground(Color.WHITE);
         contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Create equipment panel
         JPanel equipmentPanel = new JPanel(new BorderLayout(5, 5));
         equipmentPanel.setBackground(Color.WHITE);
         equipmentPanel.setBorder(BorderFactory.createTitledBorder("Equipment"));
@@ -232,7 +214,6 @@ public class HorseCustomizerPanel extends JPanel {
         equipmentList.setSelectionBackground(new Color(230, 240, 250));
         equipmentList.setSelectionForeground(Color.BLACK);
 
-        // Populate equipment list
         for (HorseItem item : selectedHorse.getEquipment()) {
             equipmentModel.addElement(item.getName());
         }
@@ -241,7 +222,6 @@ public class HorseCustomizerPanel extends JPanel {
         equipmentScroll.setBorder(BorderFactory.createEmptyBorder());
         equipmentScroll.getViewport().setBackground(Color.WHITE);
 
-        // Create equipment buttons
         JPanel equipmentButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
         equipmentButtons.setBackground(Color.WHITE);
         JButton addEquipmentBtn = createStyledButton("Add Equipment");
@@ -249,12 +229,10 @@ public class HorseCustomizerPanel extends JPanel {
         equipmentButtons.add(addEquipmentBtn);
         equipmentButtons.add(removeEquipmentBtn);
 
-        // Add action listeners for equipment buttons
         addEquipmentBtn.addActionListener(e -> {
             List<HorseItem> availableEquipment = FileIO.loadEquipment();
             List<HorseItem> currentEquipment = selectedHorse.getEquipment();
             
-            // Filter out already equipped items
             List<HorseItem> newEquipment = availableEquipment.stream()
                 .filter(equip -> !currentEquipment.stream()
                     .anyMatch(current -> current.getName().equals(equip.getName())))
@@ -332,7 +310,6 @@ public class HorseCustomizerPanel extends JPanel {
         equipmentPanel.add(equipmentScroll, BorderLayout.CENTER);
         equipmentPanel.add(equipmentButtons, BorderLayout.SOUTH);
 
-        // Create accessories panel
         JPanel accessoriesPanel = new JPanel(new BorderLayout(5, 5));
         accessoriesPanel.setBackground(Color.WHITE);
         accessoriesPanel.setBorder(BorderFactory.createTitledBorder("Accessories"));
@@ -345,7 +322,6 @@ public class HorseCustomizerPanel extends JPanel {
         accessoriesList.setSelectionBackground(new Color(230, 240, 250));
         accessoriesList.setSelectionForeground(Color.BLACK);
 
-        // Populate accessories list
         for (HorseItem item : selectedHorse.getAccessories()) {
             accessoriesModel.addElement(item.getName());
         }
@@ -354,7 +330,6 @@ public class HorseCustomizerPanel extends JPanel {
         accessoriesScroll.setBorder(BorderFactory.createEmptyBorder());
         accessoriesScroll.getViewport().setBackground(Color.WHITE);
 
-        // Create accessories buttons
         JPanel accessoriesButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
         accessoriesButtons.setBackground(Color.WHITE);
         JButton addAccessoryBtn = createStyledButton("Add Accessory");
@@ -362,12 +337,10 @@ public class HorseCustomizerPanel extends JPanel {
         accessoriesButtons.add(addAccessoryBtn);
         accessoriesButtons.add(removeAccessoryBtn);
 
-        // Add action listeners for accessory buttons
         addAccessoryBtn.addActionListener(e -> {
             List<HorseItem> availableAccessories = FileIO.loadAccessories();
             List<HorseItem> currentAccessories = selectedHorse.getAccessories();
             
-            // Filter out already equipped accessories
             List<HorseItem> newAccessories = availableAccessories.stream()
                 .filter(acc -> !currentAccessories.stream()
                     .anyMatch(current -> current.getName().equals(acc.getName())))
@@ -448,11 +421,9 @@ public class HorseCustomizerPanel extends JPanel {
         accessoriesPanel.add(accessoriesScroll, BorderLayout.CENTER);
         accessoriesPanel.add(accessoriesButtons, BorderLayout.SOUTH);
 
-        // Add panels to content
         contentPanel.add(equipmentPanel, BorderLayout.NORTH);
         contentPanel.add(accessoriesPanel, BorderLayout.CENTER);
 
-        // Create button panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         buttonPanel.setBackground(Color.WHITE);
         JButton closeBtn = createStyledButton("Close");
@@ -468,12 +439,9 @@ public class HorseCustomizerPanel extends JPanel {
     }
 
     private void updateHorseTable() {
-        // Clear existing rows
         tableModel.setRowCount(0);
 
-        // Add each horse to the table
         for (Horse horse : horses) {
-            // Format equipment and accessories as comma-separated lists
             String equipmentList = String.join(", ", horse.getEquipment().stream()
                 .map(HorseItem::getName)
                 .toArray(String[]::new));
@@ -481,7 +449,6 @@ public class HorseCustomizerPanel extends JPanel {
                 .map(HorseItem::getName)
                 .toArray(String[]::new));
 
-            // Add row to table
             tableModel.addRow(new Object[]{
                 horse.getName(),
                 horse.getSymbol(),
@@ -492,29 +459,6 @@ public class HorseCustomizerPanel extends JPanel {
                 accessoriesList
             });
         }
-    }
-
-    private JButton createStyledButton(String text) {
-        JButton button = new JButton(text);
-        button.setFont(new Font("Arial", Font.BOLD, 14));
-        button.setBackground(new Color(70, 130, 180));
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setBorderPainted(false);
-        button.setOpaque(true);
-
-        // Add hover effect
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(new Color(100, 149, 237));
-            }
-
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(new Color(70, 130, 180));
-            }
-        });
-
-        return button;
     }
 
     private void goBack() {
