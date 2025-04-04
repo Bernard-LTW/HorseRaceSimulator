@@ -85,7 +85,7 @@ System.out.println();
 
 Results:
 
-![](readme_assets/test1.jpg)
+![](report_assets/test1.jpg)
 
 #### Invalid Confidence Values
 
@@ -99,7 +99,7 @@ System.out.println("Too high confidence: " + tooHighConfidence.getConfidence() +
 
 Results:
 
-![](readme_assets/test2.jpg)
+![](report_assets/test2.jpg)
 
 #### Moving the Horse
 
@@ -119,7 +119,7 @@ System.out.println();
 
 Results:
 
-![](readme_assets/test3.jpg)
+![](report_assets/test3.jpg)
 
 #### Fallen Test
 
@@ -144,7 +144,7 @@ System.out.println();
 
 Results:
 
-![](readme_assets/test4.jpg)
+![](report_assets/test4.jpg)
 
 ## Task 2: Improve the Race class
 
