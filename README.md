@@ -38,8 +38,8 @@ cd part1
 javac *.java
 
 # Run the tests
-java -cp part1 HorseTest
-java -cp part1 RaceTest
+java HorseTest
+java RaceTest
 ```
 
 ### Part 2: GUI Implementation
