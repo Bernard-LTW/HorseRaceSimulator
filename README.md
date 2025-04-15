@@ -52,5 +52,5 @@ cd part2
 javac -cp ".:src" src/**/*.java
 
 # Run the application
-java -cp ".:src" ui.MainUI
+java -cp ".:src" ui.startRaceGUI
 ```
