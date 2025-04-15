@@ -5,9 +5,9 @@ import java.awt.*;
 
 import models.BetManager;
 
-public class MainUI extends JFrame {
+public class startRaceGUI extends JFrame {
     
-    public MainUI() {
+    public startRaceGUI() {
         setTitle("Horse Race Simulator");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setMinimumSize(new Dimension(1200, 600));
@@ -39,7 +39,7 @@ public class MainUI extends JFrame {
     }
     
     public static void main(String[] args) {
-        MainUI frame = new MainUI();
+        startRaceGUI frame = new startRaceGUI();
         frame.setVisible(true);
     }
 }
