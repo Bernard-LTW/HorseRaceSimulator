@@ -273,8 +273,8 @@ public class Race {
             long finishTime = finishTimes.getOrDefault(horse, -1L); // -1 for fallen horses
             double oldConfidence = horse.getConfidence();
 
-            FileIO.storeRaceResult(raceID, horse.getName(), horse.getSymbol(),
-                    horse.getConfidence(), horse.getDistanceTravelled(), i + 1, finishTime);
+//            FileIO.storeRaceResult(raceID, horse.getName(), horse.getSymbol(),
+//                    horse.getConfidence(), horse.getDistanceTravelled(), i + 1, finishTime);
 
             RaceStatistics.storeRaceStats(raceID, horse.getName(), horse.getConfidence(),
                     horse.getDistanceTravelled(), i + 1, finishTime, track.getName(), track.getCondition());
